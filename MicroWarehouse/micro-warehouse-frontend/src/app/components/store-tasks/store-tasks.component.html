@@ -1,0 +1,36 @@
+
+<body>
+
+  <h1 class="fw-bold text-primary text-center my-4">Warehouse Palettes</h1>
+
+  <div class="container">
+    <!--This is a angular for loop which repeates this html for each element in palletes list.-->
+    <table class="table table-dark">
+
+      <thead>
+        <tr>
+          <th scope="col">Amount</th>
+          <th scope="col">Product</th>
+          <th scope="col">Location</th>
+        </tr>
+      </thead>
+
+        <tbody *ngFor="let pal of palletes">
+          <tr>
+            <td>{{pal.amount}}</td>
+            <td>{{pal.product}}</td>
+            <td>{{pal.location}}</td>
+          </tr>
+        </tbody>
+
+    </table>
+
+    <div class="row justify-content-center my-5">
+      <div class="col-md-auto">
+        <a class="btn btn-outline-dark" href="/store-tasks/add-palette"><h4 class="m-2">Add</h4></a>
+      </div>
+    </div>
+
+  </div>
+
+</body>

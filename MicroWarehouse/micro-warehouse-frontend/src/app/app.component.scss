@@ -1,0 +1,17 @@
+
+@use "src/styles";
+
+// This overrides the primary color for this module.
+//$primary: #1f1fd2;
+
+@import "node_modules/bootstrap/scss/bootstrap";
+
+
+body {
+  margin: 20px;
+
+  .btn {
+    width: 20vw;
+  }
+
+}
