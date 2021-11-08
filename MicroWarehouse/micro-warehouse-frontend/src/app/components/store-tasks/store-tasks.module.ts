@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { StoreTasksComponent } from './store-tasks.component';
+import { RouterModule } from "@angular/router";
 
 
 
@@ -8,8 +9,9 @@ import { StoreTasksComponent } from './store-tasks.component';
   declarations: [
     StoreTasksComponent
   ],
-  imports: [
-    CommonModule
-  ]
+    imports: [
+        CommonModule,
+        RouterModule
+    ]
 })
 export class StoreTasksModule { }

@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HomeComponent } from './home.component';
+import { RouterModule } from "@angular/router";
 
 
 // Creates datastructure within our angular universe. Handles In- and Export.
@@ -9,8 +10,10 @@ import { HomeComponent } from './home.component';
   declarations: [
     HomeComponent // This module provides a HomeComponent
   ],
-  imports: [
-    CommonModule // Imports the CommonModule which is a Angular default package?
-  ]
+    imports: [
+        CommonModule,
+        RouterModule,
+        // Imports the CommonModule which is a Angular default package?
+    ]
 })
 export class HomeModule { }
