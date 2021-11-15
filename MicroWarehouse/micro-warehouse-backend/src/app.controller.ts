@@ -3,8 +3,9 @@
  * respond with the appropriate answer, binding the URL request to an operation
  */
 
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Post, Param, Body } from '@nestjs/common';
 import { AppService } from './app.service';
+import Command from './modules/builder/command';
 
 @Controller()
 export class AppController {
@@ -15,9 +16,20 @@ export class AppController {
    * key is a placeholder for a path that comes after query.
    */
   @Get('query/:key')
-  async getQuery(@Param('key') key: string): Promise<string> {
+  async getQuery(@Param('key') key: string): Promise<any> {
     // async allows the browser to function normally why we wait for the request.
     return this.appService.getQuery(key); // Returns the Promise object which will be populated as soon as the result is computed.
+  }
+
+  @Post('cmd')
+  async postCommand(@Body() command: Command) {
+    try {
+      console.log(`got command ${JSON.stringify(command, null, 3)}`);
+      const c = await this.appService.handleCommand(command);
+      return c;
+    } catch (error) {
+      return error;
+    }
   }
 
   /**

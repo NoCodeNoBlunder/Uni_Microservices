@@ -4,7 +4,7 @@
   <h1 class="fw-bold text-primary text-center my-4">Warehouse Palettes</h1>
 
   <div class="container">
-    <!--This is a angular for loop which repeates this html for each element in palletes list.-->
+    <!--This is a angular for loop which repeates this html for each element in palettes list.-->
     <table class="table table-dark">
 
       <thead>
@@ -15,8 +15,8 @@
         </tr>
       </thead>
 
-        <tbody *ngFor="let pal of palletes">
-          <tr>
+        <tbody>
+          <tr *ngFor="let pal of palettes">
             <td>{{pal.amount}}</td>
             <td>{{pal.product}}</td>
             <td>{{pal.location}}</td>

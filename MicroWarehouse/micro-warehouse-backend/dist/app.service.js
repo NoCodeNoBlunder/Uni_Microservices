@@ -5,48 +5,41 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppService = void 0;
 const common_1 = require("@nestjs/common");
+const builder_service_1 = require("./modules/builder/builder.service");
 let AppService = class AppService {
-    getHello() {
-        return 'Hello Course!';
+    constructor(buildService) {
+        this.buildService = buildService;
     }
-    getQuery(key) {
+    async getQuery(key) {
+        const list = await this.buildService.getByTag(key);
         const answer = {
             key: key,
-            result: [
-                {
-                    blockId: 'pal001',
-                    time: '12:00:00',
-                    evenType: 'PaletteStored',
-                    tags: ['palettes', 'red shoes'],
-                    payload: {
-                        barcode: 'pal001',
-                        product: 'red shoes',
-                        amount: 10,
-                        location: 'shelf 42',
-                    },
-                },
-                {
-                    blockId: 'pal002',
-                    time: '12:01:00',
-                    evenType: 'PaletteStored',
-                    tags: ['palettes', 'red shoes'],
-                    payload: {
-                        barcode: 'pal002',
-                        product: 'red shoes',
-                        amount: 10,
-                        location: 'shelf 23',
-                    },
-                },
-            ],
+            result: list,
         };
         return answer;
     }
+    getHello() {
+        return 'Hello Course!';
+    }
+    handleCommand(command) {
+        if (command.opCode === 'storePalette') {
+            this.buildService.storePalette(command.parameters);
+            return command;
+        }
+        else {
+            return `cannot handle ${command.opCode}`;
+        }
+    }
 };
 AppService = __decorate([
-    (0, common_1.Injectable)()
+    (0, common_1.Injectable)(),
+    __metadata("design:paramtypes", [builder_service_1.BuilderService])
 ], AppService);
 exports.AppService = AppService;
 //# sourceMappingURL=app.service.js.map

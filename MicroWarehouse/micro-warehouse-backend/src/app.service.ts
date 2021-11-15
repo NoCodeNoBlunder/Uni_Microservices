@@ -1,51 +1,42 @@
 /** Defines the Operations that are used by app.controller.ts */
 
 import { Injectable } from '@nestjs/common';
+import { BuilderService } from './modules/builder/builder.service';
+import Command from './modules/builder/command';
 
 @Injectable()
 export class AppService {
-  getHello(): string {
-    return 'Hello Course!';
-  }
+  constructor(private readonly buildService: BuilderService) {}
 
   /**
    * Creates the answer with dummy data for now as a list of JSON objects.
    * @param key is an alias for the last part of the URL.
    */
-  getQuery(key: string): any {
+  async getQuery(key: string): Promise<any> {
+    // Info await says this operations needs a lot of time. But has to be waited for. But I can go on without waiting for it.
+    const list = await this.buildService.getByTag(key);
     const answer = {
       key: key,
-      result: [
-        {
-          blockId: 'pal001', // Identifier of building block
-          time: '12:00:00', // Each event has a time.
-          evenType: 'PaletteStored', // Tells us what kind of building block we are dealing with. Builder pattern used.
-          tags: ['palettes', 'red shoes'], // keywords that are attached to the event which will allow to ask for a subset of events.
-
-          // contains the actual data above is meta information.
-          payload: {
-            barcode: 'pal001',
-            product: 'red shoes',
-            amount: 10,
-            location: 'shelf 42',
-          },
-        },
-        {
-          blockId: 'pal002',
-          time: '12:01:00',
-          evenType: 'PaletteStored',
-          tags: ['palettes', 'red shoes'],
-          payload: {
-            barcode: 'pal002',
-            product: 'red shoes',
-            amount: 10,
-            location: 'shelf 23',
-          },
-        },
-      ],
+      result: list,
     };
 
-    // return `${key}`;
     return answer;
+  }
+
+  getHello(): string {
+    return 'Hello Course!';
+  }
+
+  /**
+   * Handles the command command.
+   * @param command
+   */
+  handleCommand(command: Command) {
+    if (command.opCode === 'storePalette') {
+      this.buildService.storePalette(command.parameters);
+      return command;
+    } else {
+      return `cannot handle ${command.opCode}`;
+    }
   }
 }
