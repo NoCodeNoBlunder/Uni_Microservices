@@ -4,14 +4,13 @@ import { StoreTasksComponent } from './store-tasks.component';
 import { RouterModule } from "@angular/router";
 
 
-
 @NgModule({
   declarations: [
     StoreTasksComponent
   ],
     imports: [
         CommonModule,
-        RouterModule
+        RouterModule,
     ]
 })
 export class StoreTasksModule { }

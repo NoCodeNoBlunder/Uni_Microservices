@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { HttpClient, HttpResponse, HttpHeaders } from '@angular/common/http';
+import { Component, Injectable, OnInit} from '@angular/core';
 
 @Component({
   selector: 'app-store-tasks',
@@ -7,35 +8,26 @@ import { Component, OnInit } from '@angular/core';
 })
 export class StoreTasksComponent implements OnInit {
 
-  constructor() { }
+  constructor(private  http: HttpClient) { };
 
-  // List of jason objects?
-  palletes = [
-    {
-      barcode: "b001",
-      product: "red shoes",
-      amount: 10,
-      location: "shelf 42"
-    },
-    {
-      barcode: "b002",
-      product: "blue shoes",
-      amount: 10,
-      location: "shelf 43"
-    },
-    {
-      barcode: "b003",
-      product: "yellow shoes",
-      amount: 2,
-      location: "shelf 44"
-    },
-  ]
+  public palettes: any[] = [ ];
 
-  storeTaskString = "Test"
+  storeTaskString = "Hello Students"
 
-  // This method is called when the page the component lives on
-  // is loaded basically a constructor.
-  ngOnInit(): void {
+  answer: any = { };
 
+  /**
+   * Get called when the component store-tasks is opened.
+   */
+  async ngOnInit() {
+    this.answer = await this.http // Make sure the result is computed before you continue.
+      .get<any>('http://localhost:3000/query/palettes')
+      .toPromise();
+    console.log('there is some data');
+    for (const event of this.answer.result) {
+      this.palettes.push(event.payload); // payloads is what we are interessted in.
+    }
+
+    console.log(this.storeTaskString);
   }
 }

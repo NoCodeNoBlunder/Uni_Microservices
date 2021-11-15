@@ -19,40 +19,40 @@ const mongoose_2 = require("mongoose");
 let BuilderService = class BuilderService {
     constructor(buildEventModel) {
         this.buildEventModel = buildEventModel;
-        this.clear();
-        this.store({
-            blockId: 'pal042',
-            time: '13:48:00',
-            eventType: 'PaletteStored',
-            tags: ['palettes', 'red shoes'],
-            payload: {
-                barcode: 'pal042',
-                product: 'red shoes',
-                amount: 10,
-                location: 'shelf 42',
-            },
-        });
-        this.store({
-            blockId: 'pal044',
-            time: '14:50:00',
-            eventType: 'PaletteStored',
-            tags: ['palettes', 'blue shoes'],
-            payload: {
-                barcode: 'pal044',
-                product: 'blue shoes',
-                amount: 2,
-                location: 'shelf 42',
-            },
-        });
     }
-    async store(event) {
+    async onModuleInit() {
+        await this.clear();
+    }
+    getByTag(tag) {
+        console.log('getByTag called with ' + tag);
+        const list = this.buildEventModel.find({ tags: tag }).exec();
+        return list;
+    }
+    store(event) {
         const filter = { blockId: event.blockId };
-        return this.buildEventModel.findOneAndUpdate(filter, event, {
-            upsert: true,
-        });
+        return this.buildEventModel
+            .findOneAndUpdate(filter, event, { upsert: true })
+            .exec();
     }
-    async clear() {
-        return this.buildEventModel.db.dropCollection('eventstores');
+    clear() {
+        return this.buildEventModel.remove();
+    }
+    storePalette(palette) {
+        const event = {
+            blockId: palette.barcode,
+            time: new Date().toISOString(),
+            eventType: 'PaletteStored',
+            tags: ['palettes', palette.product],
+            payload: palette,
+        };
+        try {
+            this.store(event);
+        }
+        catch (error) {
+            console.log(`store did not work ${error}`);
+        }
+        console.log(`builderService.storePalette stores ${JSON.stringify(event, null, 3)}`);
+        return palette;
     }
 };
 BuilderService = __decorate([

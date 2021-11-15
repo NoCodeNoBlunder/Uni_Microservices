@@ -6,6 +6,7 @@ import { AppModule } from './app.module';
 /** Creates and starts the webserver, listening to port 3000 */
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableCors(); // INFO Enables Cross origin requests. We do this for now because we have port 4200 and 3000.
   await app.listen(3000);
 }
 

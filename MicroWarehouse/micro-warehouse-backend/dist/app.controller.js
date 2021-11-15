@@ -15,12 +15,23 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppController = void 0;
 const common_1 = require("@nestjs/common");
 const app_service_1 = require("./app.service");
+const command_1 = require("./modules/builder/command");
 let AppController = class AppController {
     constructor(appService) {
         this.appService = appService;
     }
     async getQuery(key) {
         return this.appService.getQuery(key);
+    }
+    async postCommand(command) {
+        try {
+            console.log(`got command ${JSON.stringify(command, null, 3)}`);
+            const c = await this.appService.handleCommand(command);
+            return c;
+        }
+        catch (error) {
+            return error;
+        }
     }
     getHello() {
         return this.appService.getHello();
@@ -33,6 +44,13 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], AppController.prototype, "getQuery", null);
+__decorate([
+    (0, common_1.Post)('cmd'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [command_1.default]),
+    __metadata("design:returntype", Promise)
+], AppController.prototype, "postCommand", null);
 __decorate([
     (0, common_1.Get)(),
     __metadata("design:type", Function),
