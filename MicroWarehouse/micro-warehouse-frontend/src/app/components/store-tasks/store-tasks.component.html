@@ -1,7 +1,7 @@
 
 <body>
 
-  <h1 class="fw-bold text-primary text-center my-4">Warehouse Palettes</h1>
+  <h1 class="fw-bold text-primary text-center my-4">Warehouse Palettes:</h1>
 
   <div class="container">
     <!--This is a angular for loop which repeates this html for each element in palettes list.-->
@@ -16,7 +16,7 @@
       </thead>
 
         <tbody>
-          <tr *ngFor="let pal of palettes">
+          <tr [id]="pal.barcode" *ngFor="let pal of palettes">
             <td>{{pal.amount}}</td>
             <td>{{pal.product}}</td>
             <td>{{pal.location}}</td>
@@ -27,7 +27,7 @@
 
     <div class="row justify-content-center my-5">
       <div class="col-md-auto">
-        <a class="btn btn-outline-dark" routerLink="/store-tasks/add-palette"><h4 class="m-2">Add</h4></a>
+        <a id="add-button" class="btn btn-outline-dark" routerLink="/store-tasks/add-palette"><h4 class="m-2">Add</h4></a>
       </div>
     </div>
 
