@@ -10,24 +10,30 @@ export class StoreTasksComponent implements OnInit {
 
   constructor(private  http: HttpClient) { };
 
-  public palettes: any[] = [ ];
+  public palettes: any[] = [ ]; // Here the frontend stores all palettes.
 
   storeTaskString = "Hello Students"
 
-  answer: any = { };
+  // answer: any = { };
 
-  /**
-   * Get called when the component store-tasks is opened.
-   */
-  async ngOnInit() {
-    this.answer = await this.http // Make sure the result is computed before you continue.
+  ngOnInit() {
+    this.http
       .get<any>('http://localhost:3000/query/palettes')
-      .toPromise();
-    console.log('there is some data');
-    for (const event of this.answer.result) {
-      this.palettes.push(event.payload); // payloads is what we are interessted in.
-    }
+      .subscribe(
+        // If it succeeds do this
+        answer => this.handleQueryResponse(answer),
+        // If there is an error do this.
+        error => this.storeTaskString = JSON.stringify(error, null, 3)
+      );
+  }
 
-    console.log(this.storeTaskString);
+  handleQueryResponse(answer: any) {
+    console.log('there is some date')
+    for (const event of answer.result) {
+      this.palettes.push(event.payload);
+    }
+    this.storeTaskString = `/query/palettes response contains ${this.palettes.length} palettes`
+    console.log(this.storeTaskString)
   }
 }
+
