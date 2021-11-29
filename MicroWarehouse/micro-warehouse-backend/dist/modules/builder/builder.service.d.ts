@@ -14,5 +14,5 @@ export declare class BuilderService implements OnModuleInit {
     clear(): import("mongoose").Query<any, import("mongoose").Document<any, any, BuildEvent> & BuildEvent & {
         _id: import("mongoose").Types.ObjectId;
     }, {}, BuildEvent>;
-    storePalette(palette: any): any;
+    storePalette(palette: any): Promise<any>;
 }

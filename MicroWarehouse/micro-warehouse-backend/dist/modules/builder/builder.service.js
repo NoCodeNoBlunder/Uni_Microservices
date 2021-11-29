@@ -28,7 +28,7 @@ let BuilderService = class BuilderService {
         const list = this.buildEventModel.find({ tags: tag }).exec();
         return list;
     }
-    store(event) {
+    async store(event) {
         const filter = { blockId: event.blockId };
         return this.buildEventModel
             .findOneAndUpdate(filter, event, { upsert: true })
@@ -37,7 +37,7 @@ let BuilderService = class BuilderService {
     clear() {
         return this.buildEventModel.remove();
     }
-    storePalette(palette) {
+    async storePalette(palette) {
         const event = {
             blockId: palette.barcode,
             time: new Date().toISOString(),
@@ -46,7 +46,7 @@ let BuilderService = class BuilderService {
             payload: palette,
         };
         try {
-            this.store(event);
+            await this.store(event);
         }
         catch (error) {
             console.log(`store did not work ${error}`);
