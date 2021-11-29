@@ -5,5 +5,5 @@ export declare class AppService {
     constructor(buildService: BuilderService);
     getQuery(key: string): Promise<any>;
     getHello(): string;
-    handleCommand(command: Command): string | Command;
+    handleCommand(command: Command): Promise<string | Command>;
 }

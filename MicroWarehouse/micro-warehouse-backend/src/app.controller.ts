@@ -17,8 +17,14 @@ export class AppController {
    */
   @Get('query/:key')
   async getQuery(@Param('key') key: string): Promise<any> {
-    // async allows the browser to function normally why we wait for the request.
-    return this.appService.getQuery(key); // Returns the Promise object which will be populated as soon as the result is computed.
+    //return this.appService.getQuery(key);
+
+    console.log(`appController.getQuery called with key ${key}`);
+    const result: Promise<any> = await this.appService.getQuery(key);
+    console.log(
+      `appController.getQuery done ${JSON.stringify(result, null, 3)}\n`,
+    );
+    return result;
   }
 
   @Post('cmd')

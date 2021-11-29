@@ -27,9 +27,9 @@ let AppService = class AppService {
     getHello() {
         return 'Hello Course!';
     }
-    handleCommand(command) {
+    async handleCommand(command) {
         if (command.opCode === 'storePalette') {
-            this.buildService.storePalette(command.parameters);
+            await this.buildService.storePalette(command.parameters);
             return command;
         }
         else {

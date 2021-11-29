@@ -35,7 +35,7 @@ export class BuilderService implements OnModuleInit {
    * Inserts or updates a new event into eventstores collection.
    * @param event The event to store.
    */
-  store(event: BuildEvent) {
+  async store(event: BuildEvent) {
     const filter = { blockId: event.blockId };
     return this.buildEventModel
       .findOneAndUpdate(filter, event, { upsert: true })
@@ -50,7 +50,7 @@ export class BuilderService implements OnModuleInit {
     return this.buildEventModel.remove();
   }
 
-  storePalette(palette: any) {
+  async storePalette(palette: any) {
     // Shoudl check the palette for consistency, later.
     const event = {
       blockId: palette.barcode,
@@ -61,7 +61,7 @@ export class BuilderService implements OnModuleInit {
     };
 
     try {
-      this.store(event);
+      await this.store(event);
     } catch (error) {
       console.log(`store did not work ${error}`);
     }

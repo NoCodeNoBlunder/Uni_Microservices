@@ -31,9 +31,9 @@ export class AppService {
    * Handles the command command.
    * @param command
    */
-  handleCommand(command: Command) {
+  async handleCommand(command: Command) {
     if (command.opCode === 'storePalette') {
-      this.buildService.storePalette(command.parameters);
+      await this.buildService.storePalette(command.parameters);
       return command;
     } else {
       return `cannot handle ${command.opCode}`;

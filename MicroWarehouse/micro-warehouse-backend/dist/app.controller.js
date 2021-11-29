@@ -21,7 +21,10 @@ let AppController = class AppController {
         this.appService = appService;
     }
     async getQuery(key) {
-        return this.appService.getQuery(key);
+        console.log(`appController.getQuery called with key ${key}`);
+        const result = await this.appService.getQuery(key);
+        console.log(`appController.getQuery done ${JSON.stringify(result, null, 3)}\n`);
+        return result;
     }
     async postCommand(command) {
         try {
