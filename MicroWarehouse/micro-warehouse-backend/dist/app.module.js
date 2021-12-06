@@ -17,7 +17,7 @@ let AppModule = class AppModule {
 AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            mongoose_1.MongooseModule.forRoot('mongodb+srv://NoCodeNoBlunder:321Zeppelin123@cluster0.om2tq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority'),
+            mongoose_1.MongooseModule.forRoot('mongodb+srv://NoCodeNoBlunder:321Zeppelin123@cluster0.om2tq.mongodb.net/warehouse-datebase?retryWrites=true&w=majority'),
             builder_module_1.BuilderModule,
         ],
         controllers: [app_controller_1.AppController],

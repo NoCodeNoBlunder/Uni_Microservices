@@ -18,6 +18,8 @@ describe('The Shop Backend Test', () => {
         amount: 10,
       }
     })
+      // This operation is called as soon as the reponse returns basically an old fashioned await.
+      // This is done via a lamba expression which gets passed the reponse as the argument.
       .then((respone) => {
         const product = respone.body;
         expect(product).have.property('product', 'black_socks')
