@@ -17,12 +17,27 @@ export class AppService {
 
   /**
    * Handled the event that is coming in. Demultiplexing of event types.
-   * @param event
    */
   async handleEvent(event: BuildEvent) {
     if (event.eventType === 'productStored') {
       return await this.modelBuilderService.handleProductStored(event);
+    } else if (event.eventType === 'addOffer') {
+      return await this.modelBuilderService.handleAddOffer(event);
+    } else if (event.eventType === 'placeOrder') {
+      return await this.modelBuilderService.handlePlaceOrder(event);
     }
-    return event;
+    return {
+      error: 'shop backend does not know how to handle ' + event.eventType,
+    };
+  }
+
+  async getQuery(key: string): Promise<any> {
+    if (key === 'customers') {
+      return await this.modelBuilderService.getCustomers();
+    } else {
+      return {
+        error: 'Mircoshop backend does not know how to handle query key ' + key,
+      };
+    }
   }
 }

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { AppService } from './app.service';
 import { BuildEvent } from './modules/builder/build-event.schema';
 
@@ -11,6 +11,11 @@ export class AppController {
     return this.appService.getHello();
   }
 
+  @Get('query/:key')
+  async getQuery(@Param('key') key: string): Promise<any> {
+    return await this.appService.getQuery(key);
+  }
+
   @Get('reset')
   async getReset() {
     return await this.appService.getReset();
@@ -18,6 +23,10 @@ export class AppController {
 
   @Post('event')
   async postEvent(@Body() event: BuildEvent) {
+    console.log(
+      'MircoShop app controller postEvent got \n' +
+        JSON.stringify(event, null, 3),
+    );
     try {
       return await this.appService.handleEvent(event);
     } catch (error) {
