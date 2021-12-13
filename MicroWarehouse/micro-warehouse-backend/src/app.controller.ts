@@ -6,6 +6,7 @@
 import { Controller, Get, Post, Param, Body } from '@nestjs/common';
 import { AppService } from './app.service';
 import Command from './modules/builder/command';
+import Subscription from './modules/builder/subscription';
 
 @Controller()
 export class AppController {
@@ -32,6 +33,16 @@ export class AppController {
     try {
       console.log(`got command ${JSON.stringify(command, null, 3)}`);
       const c = await this.appService.handleCommand(command);
+      return c;
+    } catch (error) {
+      return error;
+    }
+  }
+
+  @Post('subscribe')
+  async postSubscribe(@Body() subscripiton: Subscription) {
+    try {
+      const c = await this.appService.handleSubscription(subscripiton);
       return c;
     } catch (error) {
       return error;

@@ -13,11 +13,11 @@ exports.AppService = void 0;
 const common_1 = require("@nestjs/common");
 const builder_service_1 = require("./modules/builder/builder.service");
 let AppService = class AppService {
-    constructor(buildService) {
-        this.buildService = buildService;
+    constructor(modelbuildService) {
+        this.modelbuildService = modelbuildService;
     }
     async getQuery(key) {
-        const list = await this.buildService.getByTag(key);
+        const list = await this.modelbuildService.getByTag(key);
         const answer = {
             key: key,
             result: list,
@@ -29,12 +29,15 @@ let AppService = class AppService {
     }
     async handleCommand(command) {
         if (command.opCode === 'storePalette') {
-            await this.buildService.storePalette(command.parameters);
+            await this.modelbuildService.storePalette(command.parameters);
             return command;
         }
         else {
             return `cannot handle ${command.opCode}`;
         }
+    }
+    async handleSubscription(subscription) {
+        return await this.modelbuildService.handleSubscription(subscription);
     }
 };
 AppService = __decorate([

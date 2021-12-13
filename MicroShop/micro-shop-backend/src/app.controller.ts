@@ -1,10 +1,45 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  OnModuleInit,
+  Param,
+  Post,
+} from '@nestjs/common';
+import { HttpService } from '@nestjs/axios';
 import { AppService } from './app.service';
 import { BuildEvent } from './modules/builder/build-event.schema';
 
 @Controller()
-export class AppController {
-  constructor(private readonly appService: AppService) {}
+export class AppController implements OnModuleInit {
+  constructor(
+    private readonly appService: AppService,
+    private readonly httpService: HttpService,
+  ) {}
+
+  onModuleInit() {
+    // subscribe at warehouse
+    this.httpService
+      .post('http://localhost:3000/subscribe', {
+        subscriberUrl: 'http://localhost:3000/event',
+        lastEventTime: '0',
+      })
+      .subscribe(
+        async (response) => {
+          try {
+            const eventList: any[] = response.data;
+            for (const event of eventList) {
+              await this.appService.handleEvent(event);
+            }
+          } catch (error) {
+            // console.log( `AppController onModuleInit subscribe handleEvent error` + JSON.stringify(),);
+          }
+        },
+        (error) => {
+          // console.log(`Appcontroller onModuleInit error` + JSON.stringify(error, null),);
+        },
+      );
+  }
 
   @Get()
   getHello(): string {

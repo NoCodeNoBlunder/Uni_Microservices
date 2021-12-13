@@ -23,7 +23,7 @@ export class BuilderService implements OnModuleInit {
   }
 
   /**
-   * Checks whether the event is already there.
+   * Checks whether the event is already there (deduplication).
    * If an event with the blockId allready exists it only get updated if it's time is more recent.
    */
   async storeEvent(event: BuildEvent) {
@@ -37,7 +37,13 @@ export class BuilderService implements OnModuleInit {
 
     const newEvent = await this.buildEventModel.findOneAndUpdate(
         { blockId: event.blockId, time: {$lt: event.time }}, // Only selects items where the value of field is lt specified value. Notice upsert defaults to false.
-        event,
+        // INFO Warehosue frontend cannot deal with this id.
+        {
+          tags: event.tags,
+          time: event.time,
+          eventType: event.eventType,
+          payload: event.payload,
+        },
         { new: true }).exec();
     console.log('builder service storeEvent line \n' + JSON.stringify(newEvent, null, 3));
 
@@ -54,11 +60,7 @@ export class BuilderService implements OnModuleInit {
       const newProduct = await this.productsModel
         .findOneAndUpdate(
           { product: newProductData.product },
-          {
-            $inc: { amount: newProductData.amount },
-            $set: { amountTime: newProductData.amountTime,
-                    product: newProductData.product },
-          },
+          newProductData,
           { upsert: true, new: true }).exec();
       console.log('BuilderService.storeProduct storeProduct: \n' + JSON.stringify(newProduct, null, 3),
       );
@@ -72,26 +74,45 @@ export class BuilderService implements OnModuleInit {
   }
 
   async handleProductStored(event: BuildEvent) {
-
-    let newProduct;
-      // Store a build event.
+    let newProduct = null;
+    //store a build event
     const storeSuccess = await this.storeEvent(event);
-
-      // Checks whether the storeEvent was successful.
-      if (storeSuccess) {
-        // Store a product object
-        const productPatch = {
-          product: event.blockId,
-          amount: event.payload.amount,
-          amountTime: event.time,
-        };
-        newProduct = await this.storeProduct(productPatch);
-      }
-      else {
-        newProduct = await this.productsModel.findOne({product: event.blockId});
-      }
-
+    if(storeSuccess) {
+      //store a product object
+      const newAmount = await this.computeNewProductAmount(event.blockId)
+      const productPatch = {
+        product: event.blockId,
+        amount: newAmount,
+        amountTime: event.time,
+      };
+      newProduct = await this.storeProduct(productPatch);
+    }
+    else {
+      newProduct = await this.productsModel.findOne({product:event.blockId});
+    }
     return newProduct;
+  }
+
+  async computeNewProductAmount(productName) {
+    const lastStoredEvent = await this.buildEventModel.findOne({blockId: productName}).exec();
+    const lastEvent = lastStoredEvent.payload.amount;
+
+    const newOrdersList: any[] = await this.buildEventModel.find(
+        {
+          eventType: 'placeOrder',
+          'payload.product': productName
+        }
+    ).exec();
+
+    const newOrdersNumber = newOrdersList.length;
+    const laterShippingList: any[] = await this.buildEventModel.find(
+        {
+          eventType: 'orderPicked',
+          time: {$gt: lastStoredEvent.time},
+          'payload.product': productName
+        }
+    ).exec();
+    return lastEvent;
   }
 
   async clear() {
@@ -104,31 +125,6 @@ export class BuilderService implements OnModuleInit {
 
   async reset() {
     await this.clear();
-    // Dummy Data.
-  //   await this.handleProductStored({
-  //     blockId: 'rubber_boots',
-  //     time: '11:00:00',
-  //     eventType: 'ProductStores',
-  //     tags: ['product', 'rubber_boots'],
-  //     payload: {
-  //       product: 'runner_boots',
-  //       amount: 23,
-  //       location: 'entry_door',
-  //     },
-  //   });
-  //
-  //   // Duplicate
-  //   await this.handleProductStored({
-  //     blockId: 'rubber_boots',
-  //     time: '11:00:00',
-  //     eventType: 'ProductStores',
-  //     tags: ['product', 'rubber_boots'],
-  //     payload: {
-  //       product: 'runner_boots',
-  //       amount: 23,
-  //       location: 'entry_door',
-  //     },
-  //   });
   }
 
   async handleAddOffer(event: BuildEvent) {
@@ -177,13 +173,20 @@ export class BuilderService implements OnModuleInit {
             console.log('BuilderService.handlePlaceOrder \n' + JSON.stringify(newOrder, null, 3));
 
         // and upsert customer
-        await this.customersModel.findOneAndUpdate(
+        const newCustomer = await this.customersModel.findOneAndUpdate(
             {name: event.payload.customer},
             {
               name: event.payload.customer,
               lastAddress: event.payload.address,
             },
             {upsert: true, new: true}).exec();
+
+        const newAmount = await this.computeNewProductAmount(event.payload.product);
+        await this.productsModel.findOneAndUpdate(
+            { product: event.payload.product },
+            { amount: newAmount }
+        )
+
         return newOrder;
       } catch (error) {
         console.log('Error in BuilderService.handlePlaceOrder: \n' + JSON.stringify(error, null, 3));
@@ -200,4 +203,6 @@ export class BuilderService implements OnModuleInit {
   async getCustomers() {
     return await this.customersModel.find({}).exec();
   }
+
+
 }

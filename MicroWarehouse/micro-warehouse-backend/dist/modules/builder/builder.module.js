@@ -11,11 +11,13 @@ const common_1 = require("@nestjs/common");
 const builder_service_1 = require("./builder.service");
 const mongoose_1 = require("@nestjs/mongoose");
 const build_event_schema_1 = require("./build-event.schema");
+const axios_1 = require("@nestjs/axios");
 let BuilderModule = class BuilderModule {
 };
 BuilderModule = __decorate([
     (0, common_1.Module)({
         imports: [
+            axios_1.HttpModule,
             mongoose_1.MongooseModule.forFeature([
                 { name: 'eventStore', schema: build_event_schema_1.BuildEventSchema },
             ]),

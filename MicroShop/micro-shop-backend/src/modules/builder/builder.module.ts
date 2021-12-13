@@ -5,9 +5,11 @@ import { BuilderService } from './builder.service';
 import { ProductSchema } from './product.schema';
 import { OrderSchema } from './order.schema';
 import { CustomerSchema } from './customer.schema';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
+    HttpModule,
     MongooseModule.forFeature([
       { name: 'eventStore', schema: BuildEventSchema },
       { name: 'products', schema: ProductSchema },

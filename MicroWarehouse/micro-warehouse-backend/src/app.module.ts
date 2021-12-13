@@ -7,7 +7,7 @@ import { BuilderModule } from './modules/builder/builder.module';
 @Module({
   imports: [
     MongooseModule.forRoot(
-      'mongodb+srv://NoCodeNoBlunder:321Zeppelin123@cluster0.om2tq.mongodb.net/warehouse-datebase?retryWrites=true&w=majority',
+      'mongodb+srv://NoCodeNoBlunder:G9WoGkLT4OPArMJr@cluster0.om2tq.mongodb.net/warehouse-datebase?retryWrites=true&w=majority',
     ),
     BuilderModule,
   ],

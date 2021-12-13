@@ -8,19 +8,17 @@ describe('The Shop Backend Test', () => {
     cy.visit('http://localhost:3100/reset')
   })
 
-  it('posts a product stored event', () => {
+  it('posts a first product stored event for 10 socks', () => {
     cy.request('POST', 'http://localhost:3100/event', {
       eventType: 'productStored',
       blockId: 'black_socks',
-      time: '12:04',
+      time: '11:04',
       tags: [],
       payload: {
         product: 'black_socks',
         amount: 10,
       }
     })
-      // This operation is called as soon as the reponse returns basically an old fashioned await.
-      // This is done via a lamba expression which gets passed the reponse as the argument.
       .then((respone) => {
         const product = respone.body;
         expect(product).have.property('product', 'black_socks')
@@ -28,16 +26,15 @@ describe('The Shop Backend Test', () => {
       })
   })
 
-  // INFO This event doesn not change anything because the timestamp is not more recent.
   it('repeats the post without a change', () => {
     cy.request('POST', 'http://localhost:3100/event', {
       eventType: 'productStored',
-      blockId: 'black_socks', // INFO Since this blockId is already in the database and the time is not more recent.
-      time: '12:04',
+      blockId: 'black_socks',
+      time: '11:04',
       tags: [],
       payload: {
         product: 'black_socks',
-        amount: 22,
+        amount: 10,
       }
     })
       .then((respone) => {
@@ -47,105 +44,105 @@ describe('The Shop Backend Test', () => {
       })
   })
 
-  it('sends an update with another 20 socks', () => {
+
+  it('sends an update with now 18 socks', () => {
     cy.request('POST', 'http://localhost:3100/event', {
       eventType: 'productStored',
       blockId: 'black_socks',
-      time: '12:05',
+      time: '11:07',
       tags: [],
       payload: {
         product: 'black_socks',
-        amount: 20,
+        amount: 18,
+      }
+    })
+      .then((respone) => {
+        const product = respone.body;
+        expect(product).have.property('product', 'black_socks')
+        expect(product).have.property('amount', 18);
+      })
+  })
+
+  it('resets the database and sends the events in reverse order', () => {
+    cy.visit('http://localhost:3100/reset');
+    cy.request('POST', 'http://localhost:3100/event', {
+      eventType: 'productStored',
+      blockId: 'black_socks',
+      time: '11:07',
+      tags: [],
+      payload: {
+        product: 'black_socks',
+        amount: 18,
       }
     })
       .then((response) => {
-        // console.log(JSON.stringify(response, null, 3));
-
         const product = response.body;
         expect(product).have.property('product', 'black_socks')
-        expect(product).have.property('amount', 30);
+        expect(product).have.property('amount', 18);
+      });
+    cy.request('POST', 'http://localhost:3100/event', {
+      eventType: 'productStored',
+      blockId: 'black_socks',
+      time: '11:04',
+      tags: [],
+      payload: {
+        product: 'black_socks',
+        amount: 10,
+      }
+    })
+      .then((response) => {
+        const product = response.body;
+        expect(product).have.property('product', 'black_socks')
+        expect(product).have.property('amount', 18);
       })
   })
 
   it('sends an add offer for black_socks', () => {
     cy.request('POST', 'http://localhost:3100/event', {
-      eventType: 'addOffer',  // INFO only the price gets added. Or updated with this event type.
+      eventType: 'addOffer',
       blockId: 'black_socks_price',
-      time: '12:14',
+      time: '11:14',
       tags: [],
       payload: {
         product: 'black_socks',
         price: '$42',
       }
-    }).then((response) => {
-      const product = response.body;
-      expect(product).have.property('product', 'black_socks')
-      expect(product).have.property('amount', 30);
-      expect(product).have.property('price', '$42');
     })
+      .then((response) => {
+        const product = response.body;
+        expect(product).have.property('product', 'black_socks')
+        expect(product).have.property('amount', 18);
+        expect(product).have.property('price', '$42');
+      })
   })
 
-  it('sends an place order command', () => {
+  it('sends a place order command', () => {
     cy.request('POST', 'http://localhost:3100/event', {
       eventType: 'placeOrder',
       blockId: 'o1121',
-      time: '12:21',
+      time: '11:21',
       tags: [],
       payload: {
-        code: '01121',
+        code: 'o1121',
         product: 'black_socks',
-        customer: "Carli Customer",
+        customer: 'Carli Customer',
         address: 'Wonderland 1',
         state: 'new order',
       }
     })
-    .then((respone) => {
-      const order = respone.body;
-      expect(order).have.property('product', 'black_socks');
-      expect(order).have.property('customer', 'Carli Customer');
-      expect(order).have.property('state', 'new order')
-    })
+      .then((response) => {
+        const order = response.body;
+        //console.log('place order response is \n' + JSON.stringify(order, null, 3));
+        expect(order).have.property('product', 'black_socks');
+        expect(order).have.property('customer', 'Carli Customer');
+        expect(order).have.property('state', 'new order');
+      })
 
     cy.request('GET', 'http://localhost:3100/query/customers')
-    .then((response) => {
-      const customerList: any[] = response.body;
-      console.log('query customers reponse is \n' + JSON.stringify(customerList, null, 3));
-      expect(customerList.length).gt(0); // we want the customersList.lenght be bigger than 0.
-    })
-  })
-
-////////////// Own Tests /////////////////
-
-  it('Demonstrate StoreEvent Dummy Element.', () => {
-    cy.request('POST', 'http://localhost:3100/event', {
-      eventType: 'addOffer',  // INFO only the price gets added. Or updated with this event type.
-      blockId: 'iPhone X',
-      time: '15:00',
-      tags: [],
-      payload: {
-        product: 'iPhone X',
-        price: '$999',
-      }
-    }).then((response) => {
-      const product = response.body;
-      expect(product).have.property('price', '$999');
-    })
-  })
-
-  // TODO this makes no sense. The offer with less money was accepted.
-  it('Override price to lower price.', () => {
-    cy.request('POST', 'http://localhost:3100/event', {
-      eventType: 'addOffer',  // INFO only the price gets added. Or updated with this event type.
-      blockId: 'iPhone X',
-      time: '15:01',
-      tags: [],
-      payload: {
-        product: 'iPhone X',
-        price: '$1',
-      }
-    }).then((response) => {
-      const product = response.body;
-      expect(product).have.property('price', '$1');
-    })
+      .then((response) => {
+        const customerList: any[] = response.body;
+        console.log('query customers response is \n' + JSON.stringify(customerList, null, 3));
+        expect(customerList.length).gt(0);
+      })
   })
 })

@@ -14,11 +14,14 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BuilderService = void 0;
 const common_1 = require("@nestjs/common");
+const axios_1 = require("@nestjs/axios");
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
 let BuilderService = class BuilderService {
-    constructor(buildEventModel) {
+    constructor(httpService, buildEventModel) {
+        this.httpService = httpService;
         this.buildEventModel = buildEventModel;
+        this.subScriberUrls = [];
     }
     async onModuleInit() {
         await this.clear();
@@ -29,15 +32,19 @@ let BuilderService = class BuilderService {
         return list;
     }
     async store(event) {
-        const filter = { blockId: event.blockId };
-        return this.buildEventModel
-            .findOneAndUpdate(filter, event, { upsert: true })
+        const placeholder = await this.buildEventModel
+            .findOneAndUpdate({ blockId: event.blockId }, { blockId: event.blockId, $setOnInsert: { time: '' } }, { upsert: true, new: true })
             .exec();
+        const newEvent = await this.buildEventModel
+            .findOneAndUpdate({ blockId: event.blockId, name: { $lt: event.time } }, event, { new: true })
+            .exec();
+        return newEvent != null;
     }
     clear() {
         return this.buildEventModel.remove();
     }
     async storePalette(palette) {
+        palette.amount = Number(palette.amount);
         const event = {
             blockId: palette.barcode,
             time: new Date().toISOString(),
@@ -46,7 +53,22 @@ let BuilderService = class BuilderService {
             payload: palette,
         };
         try {
-            await this.store(event);
+            const storeSuccess = await this.store(event);
+            const amount = await this.computeAmount(palette.product);
+            if (storeSuccess) {
+                const newEvent = {
+                    eventType: 'productStored',
+                    blockId: palette.product,
+                    time: event.time,
+                    tags: [],
+                    payload: {
+                        product: palette.product,
+                        amount: amount,
+                    },
+                };
+                await this.store(newEvent);
+                this.publish(newEvent);
+            }
         }
         catch (error) {
             console.log(`store did not work ${error}`);
@@ -54,11 +76,52 @@ let BuilderService = class BuilderService {
         console.log(`builderService.storePalette stores ${JSON.stringify(event, null, 3)}`);
         return palette;
     }
+    async handleSubscription(subscription) {
+        if (!this.subScriberUrls.includes(subscription.subscriberUrl)) {
+            this.subScriberUrls.push(subscription.subscriberUrl);
+        }
+        const eventList = await this.buildEventModel
+            .find({
+            eventType: 'productStored',
+            time: { $gt: subscription.lastEventTime },
+        })
+            .exec();
+        return eventList;
+    }
+    async computeAmount(productName) {
+        const paletteStoredList = await this.buildEventModel
+            .find({
+            eventType: 'PaletteStored',
+            'payload.product': productName,
+        })
+            .exec();
+        let sum = 0;
+        for (const e of paletteStoredList) {
+            sum += e.payload.amount;
+        }
+        return sum;
+    }
+    publish(newEvent) {
+        console.log('build service publish subsribersUrls:\n' +
+            JSON.stringify(this.subScriberUrls, null, 3));
+        const oldUrls = this.subScriberUrls;
+        this.subScriberUrls = [];
+        for (const subscriberUrl of oldUrls) {
+            this.httpService.post(subscriberUrl, newEvent).subscribe((response) => {
+                console.log('Warehouse builder service publish post response is \n' +
+                    JSON.stringify(response.data, null, 3));
+                this.subScriberUrls.push(subscriberUrl);
+            }, (error) => {
+                console.log('build service publish error: \n' + JSON.stringify(error, null, 3));
+            });
+        }
+    }
 };
 BuilderService = __decorate([
     (0, common_1.Injectable)(),
-    __param(0, (0, mongoose_1.InjectModel)('eventStore')),
-    __metadata("design:paramtypes", [mongoose_2.Model])
+    __param(1, (0, mongoose_1.InjectModel)('eventStore')),
+    __metadata("design:paramtypes", [axios_1.HttpService,
+        mongoose_2.Model])
 ], BuilderService);
 exports.BuilderService = BuilderService;
 //# sourceMappingURL=builder.service.js.map
