@@ -3,10 +3,9 @@
  */
 
 describe('Warehouse Test', () => {
-  // Each it is ont test.
   it('visits the warehouse frontend', () => {
     cy.visit('http://localhost:4200/')
-    // cy.contains("") // TODO hätte man hinzufügen müssen.
+    // cy.contains("") //
   })
 
   it("clicks on store-tasks", () => {

@@ -80,7 +80,7 @@ export class BuilderService implements OnModuleInit {
 
     try {
       const storeSuccess = await this.store(event);
-      const amount = await this.computeAmount(palette.product);
+      const amount = await this.computeAmount(palette.product); // compute the new amount of this product.
 
       if (storeSuccess) {
         const newEvent = {
@@ -110,6 +110,7 @@ export class BuilderService implements OnModuleInit {
   async handleSubscription(subscription: subscription) {
     // store in subscribter list
     if (!this.subScriberUrls.includes(subscription.subscriberUrl)) {
+      // Add the new subscriberUrl is not allready in the array add it.
       this.subScriberUrls.push(subscription.subscriberUrl);
     }
 

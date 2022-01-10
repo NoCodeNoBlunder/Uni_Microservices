@@ -21,7 +21,7 @@ export class AppController implements OnModuleInit {
     // subscribe at warehouse
     this.httpService
       .post('http://localhost:3000/subscribe', {
-        subscriberUrl: 'http://localhost:3000/event',
+        subscriberUrl: 'http://localhost:3100/event',
         lastEventTime: '0',
       })
       .subscribe(
