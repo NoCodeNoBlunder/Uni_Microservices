@@ -1,0 +1,45 @@
+<form [formGroup]="formGroup" (ngSubmit)="submitOffer()">
+  <div class="container">
+    <div class="row d-flex justify-content-center my-2">
+      <div class="col d-flex justify-content-center">
+        <h1 class="fw-bold text-primary text-center my-4">Edit Offer:</h1>
+      </div>
+    </div>
+
+    <div class="row d-flex justify-content-center my-2">
+      <div class="col d-flex justify-content-center">
+        <input id="name" type="text" placeholder="product name?" formControlName="productName"
+               [style.color]="!formGroup.value.productName?'black':null">
+      </div>
+    </div>
+
+    <div *ngIf="formGroup.get('productName')?.errors && formGroup.get('productName')?.dirty" class="row d-flex justify-content-center my-2">
+      <div class="col d-flex justify-content-center">
+        name should be in jeans, t-shirt
+      </div>
+    </div>
+
+    <div class="row d-flex justify-content-center my-2">
+      <div class="col d-flex justify-content-center">
+        <input id="price" type="text" placeholder="Price in €" formControlName="productPrice"
+               [style.color]="!formGroup.value.productPrice?'black':null">
+      </div>
+    </div>
+
+    <div *ngIf="formGroup.get('productPrice')?.errors && formGroup.get('productPrice')?.dirty" class="row d-flex justify-content-center my-2">
+      <div class="col d-flex justify-content-center">
+        name should be greater than 0
+      </div>
+    </div>
+
+    <div class="row d-flex justify-content-center my-2">
+      <div class="col d-flex justify-content-center">
+        <button id="submitOfferButton" type="submit" [disabled]="!formGroup.valid" class="btn btn-primary">Submit</button>
+      </div>
+    </div>
+
+    <p>{{formGroup.status}} {{formGroup.errors}}</p>
+
+    <p>{{debugOut}}</p>
+  </div>
+</form>

@@ -1,0 +1,45 @@
+
+
+<div class ="container">
+  <div class="row d-flax justify-content-center my-2">
+    <div class="col d-flex justify-content-center">
+      <h1 class="fw-bold text-primary text-center my-4">Offers overview:</h1>
+    </div>
+  </div>
+
+  <div class="row d-flax justify-content-center my-2">
+    <table class="table table-dark">
+
+      <thead>
+      <tr>
+        <th scope="col">Products</th>
+        <th scope="col">Status</th>
+        <th scope="col">Amount</th>
+        <th scope="col">Price</th>
+      </tr>
+      </thead>
+
+      <tbody>
+      <tr *ngFor="let myOffer of offers">
+        <td>{{myOffer.name}}</td>
+        <td>{{myOffer.state}}</td>
+        <td>{{myOffer.amount}}</td>
+        <td>{{myOffer.price}} €</td>
+      </tr>
+      </tbody>
+
+    </table>
+  </div>
+
+  <div class="row my-2">
+    <div class="col d-flex justify-content-center">
+      <a id="add-button" class="btn btn-outline-dark" routerLink="/offer-tasks/edit-offer"><h4 class="m-2">Edit</h4></a>
+    </div>
+  </div>
+
+  <div class="row my-2">
+        <pre>
+            {{storeTaskString}}
+        </pre>
+  </div>
+</div>
