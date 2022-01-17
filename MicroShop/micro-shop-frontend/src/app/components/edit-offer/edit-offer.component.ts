@@ -58,10 +58,10 @@ export class EditOfferComponent implements OnInit {
   formGroup = new FormGroup({
     // Validater is a function that is called whenever something is changed in the Input field.
     productName: new FormControl('', [Validators.required, this.productNameValidator()]),
-    // productPrice: new FormControl('', [
-    //   Validators.required,
-    //   Validators.pattern(/^([1-9][0-9]*)$|^([0-9]*(\.|,)[0-9]?[1-9])$/)
-    // ])
+    productPrice: new FormControl('', [
+      Validators.required,
+      // Validators.pattern(/^([1-9][0-9]*)$|^([0-9]*(\.|,)[0-9]?[1-9])$/)
+    ])
   });
 
   productNameValidator() {

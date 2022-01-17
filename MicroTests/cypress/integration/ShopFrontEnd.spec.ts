@@ -27,7 +27,8 @@ describe('Shop Test', () =>
     cy.get('#price').type('42.99')
     cy.get('#submitOfferButton').click()
 
-    cy.contains('Offers overview:')
+    cy.contains("Offers overview:")
+
   })
 
   it('validates the jeans price in the database', () => {
