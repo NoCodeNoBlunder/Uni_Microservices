@@ -11,6 +11,8 @@ import { CommonModule } from "@angular/common";
 import { HomeModule } from "./components/home/home.module";
 import { OfferTasksModule } from "./components/offer-tasks/offer-tasks.module";
 import { EditOfferModule } from "./components/edit-offer/edit-offer.module";
+import { ToastModule, ToastService,} from "ng-bootstrap-ext";
+
 
 @NgModule({
   declarations: [
@@ -28,12 +30,13 @@ import { EditOfferModule } from "./components/edit-offer/edit-offer.module";
     FormsModule,
     ReactiveFormsModule,
     HttpClientModule,
+    ToastModule,
     // Our Modules.
     HomeModule,
     OfferTasksModule,
     EditOfferModule,
   ],
-  providers: [],
+  providers: [ToastService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

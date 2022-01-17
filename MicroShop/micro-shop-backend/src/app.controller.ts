@@ -9,6 +9,7 @@ import {
 import { HttpService } from '@nestjs/axios';
 import { AppService } from './app.service';
 import { BuildEvent } from './modules/builder/build-event.schema';
+import { SetPriceDto } from '../common/SetPriceDto';
 
 @Controller()
 export class AppController implements OnModuleInit {
@@ -46,6 +47,7 @@ export class AppController implements OnModuleInit {
     return this.appService.getHello();
   }
 
+  // http://localhost:3000/query/palletes
   @Get('query/:key')
   async getQuery(@Param('key') key: string): Promise<any> {
     return await this.appService.getQuery(key);
@@ -64,6 +66,17 @@ export class AppController implements OnModuleInit {
     );
     try {
       return await this.appService.handleEvent(event);
+    } catch (error) {
+      return error;
+    }
+  }
+
+  @Post('cmd/setPrice')
+  async postCommand(@Body() params: SetPriceDto) {
+    try {
+      //this.logger.log(`\ngot command ${JSON.stringify(command, null, 3)}`)
+      const c = await this.appService.setPrice(params);
+      return c;
     } catch (error) {
       return error;
     }

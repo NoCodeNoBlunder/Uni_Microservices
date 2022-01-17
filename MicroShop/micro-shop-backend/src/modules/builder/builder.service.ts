@@ -7,6 +7,7 @@ import { Model } from 'mongoose';
 import { MSProduct } from "./product.schema";
 import { Order } from "./order.schema";
 import { Customer } from "./customer.schema";
+import { SetPriceDto } from "../../../common/SetPriceDto";
 
 
 @Injectable()
@@ -119,8 +120,29 @@ export class BuilderService implements OnModuleInit {
     // deleteMany is an async database operation.
     await this.productsModel.deleteMany();
     await this.buildEventModel.deleteMany();
+
+    // TODO commnet these out?
     await this.orderModel.deleteMany();
     await this.customersModel.deleteMany();
+
+    await this.storeProduct({
+      product: 'jeans',
+      amount: 10,
+      amountTime: '12:00',
+      price: 0.0,
+    })
+    await this.storeProduct({
+      product: 'tshirt',
+      amount: 11,
+      amountTime: '12:01',
+      price: 0.0,
+    })
+    await this.storeProduct({
+      product: 'socks',
+      amount: 12,
+      amountTime: '12:02',
+      price: 0.0,
+    })
   }
 
   async reset() {
@@ -152,7 +174,6 @@ export class BuilderService implements OnModuleInit {
         console.log("Error in BuilderService.storeProduct: \n" + JSON.stringify(error, null, 3));
       }
     }
-
     else {
       return await this.productsModel.findOne({product: event.payload.product});
     }
@@ -204,5 +225,21 @@ export class BuilderService implements OnModuleInit {
     return await this.customersModel.find({}).exec();
   }
 
+  async getProducts() {
+    return await this.productsModel.find({}).exec();
+  }
 
+  async getProduct(name) {
+    return await this.productsModel.findOne({product: name}).exec();
+  }
+
+  async setPrice(params: SetPriceDto) {
+    return await this.productsModel
+        .findOneAndUpdate(
+            { product: params.product },
+            { price: `${params.price}` },
+            { new: true },
+        )
+        .exec();
+  }
 }
