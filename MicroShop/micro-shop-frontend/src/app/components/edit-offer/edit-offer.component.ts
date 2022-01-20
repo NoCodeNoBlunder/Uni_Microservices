@@ -3,6 +3,7 @@ import { AbstractControl, FormControl, FormGroup, ValidationErrors, Validators }
 import { HttpClient } from "@angular/common/http";
 import { Router } from "@angular/router";
 import { ToastService } from "ng-bootstrap-ext";
+import { ProductDto } from "../../../common/ProductDto";
 
 
 @Component({
@@ -21,7 +22,8 @@ export class EditOfferComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.http.get<any>("hppt://localhost:3100/query/products")
+    // Load Product from db when this component is loaded.
+    this.http.get<any>("http://localhost:3100/query/products")
       .subscribe(
         answer => this.handleQueryResponse(answer),
         error => this.debugOut = JSON.stringify(error, null, 3)
@@ -29,7 +31,7 @@ export class EditOfferComponent implements OnInit {
   }
 
   // Makes sure that valid names are not all the products stores in the db.
-  handleQueryResponse(answer: any[]) {
+  handleQueryResponse(answer: ProductDto[]) {
     this.validNames = [];
     for (const elem of answer) {
       this.validNames.push(elem.product);
@@ -46,11 +48,14 @@ export class EditOfferComponent implements OnInit {
     // Check if the Input is valid in the backend also. There needs to be a check in the front and in the backend.
     this.http.post<any>("http://localhost:3100/cmd/setPrice", params).subscribe(
       () => {
+        // console.log("ok?");
+        // console.log(JSON.stringify(params, null, 3));
         this.toastService.success("Edit Offer", "Price has been stored successfully!");
         this.router.navigate(["offer-tasks"]);
       },
       (error) => {
         this.toastService.error("Edit Offer", `Problem:: ${JSON.stringify(error, null, 3)}`);
+        // console.log("nicht ok?");
       }
     );
   }

@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { ToastService } from "ng-bootstrap-ext";
+import { ProductDto } from "../../../common/ProductDto";
 
 @Component({
   selector: 'app-offer-tasks',
@@ -11,10 +11,9 @@ export class OfferTasksComponent implements OnInit {
 
   constructor(
     private http: HttpClient,
-    private toastService: ToastService
   ) { }
 
-  public offers: any[] = [];
+  public offers: ProductDto[] = [];
 
   // Used for debugging.
   storeTaskString = "Hello offer Tasks";
@@ -38,8 +37,6 @@ export class OfferTasksComponent implements OnInit {
 
     this.storeTaskString = `number of offers ${this.offers.length}`
 
-
-    // Connect shop frontend to shop backend.
     // Request for all the product in db.
     this.http.get<any>('http://localhost:3100/query/products')
       .subscribe(
@@ -48,12 +45,13 @@ export class OfferTasksComponent implements OnInit {
       );
   }
 
-  handleQueryResponse(answer: any[]) {
+  handleQueryResponse(answer: ProductDto[]) {
     // Reset the offers. Ger rid of dummy data.
     this.offers = [];
     // For each product we have in dp push it to offers so they are available.
     for (const product of answer) {
         // console.log(JSON.stringify(product, null, 3))
+        // Add all products to available offers.
         this.offers.push(product)
     }
     this.storeTaskString = `number of offers ${this.offers.length}`

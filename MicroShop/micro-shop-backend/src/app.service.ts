@@ -32,6 +32,7 @@ export class AppService {
     };
   }
 
+  // Demultipliexing of queries.
   async getQuery(key: string): Promise<any> {
     if (key === 'customers') {
       return await this.modelBuilderService.getCustomers();
@@ -49,6 +50,8 @@ export class AppService {
   }
 
   async setPrice(params: SetPriceDto) {
+    // console.log("App Service setPrice()");
+    // console.log(JSON.stringify(params, null, 3));
     return await this.modelBuilderService.setPrice(params);
   }
 }

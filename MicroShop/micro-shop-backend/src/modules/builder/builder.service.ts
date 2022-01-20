@@ -219,12 +219,15 @@ export class BuilderService implements OnModuleInit {
   }
 
   /**
-   * Return a list of all customers with no condition.
+   * Return a list of all customers in db with no condition.
    */
   async getCustomers() {
     return await this.customersModel.find({}).exec();
   }
 
+  /**
+   * Returns a list of all products in db with no condition.
+   */
   async getProducts() {
     return await this.productsModel.find({}).exec();
   }
@@ -234,6 +237,9 @@ export class BuilderService implements OnModuleInit {
   }
 
   async setPrice(params: SetPriceDto) {
+    // console.log("Builder.service setPrice()");
+    // console.log(JSON.stringify(params, null, 3));
+
     return await this.productsModel
         .findOneAndUpdate(
             { product: params.product },

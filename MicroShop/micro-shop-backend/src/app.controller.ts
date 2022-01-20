@@ -47,7 +47,6 @@ export class AppController implements OnModuleInit {
     return this.appService.getHello();
   }
 
-  // http://localhost:3000/query/palletes
   @Get('query/:key')
   async getQuery(@Param('key') key: string): Promise<any> {
     return await this.appService.getQuery(key);
@@ -74,7 +73,9 @@ export class AppController implements OnModuleInit {
   @Post('cmd/setPrice')
   async postCommand(@Body() params: SetPriceDto) {
     try {
-      //this.logger.log(`\ngot command ${JSON.stringify(command, null, 3)}`)
+      // this.logger.log(`\ngot command ${JSON.stringify(command, null, 3)}`)
+      // console.log("App Controller setPrice()");
+      // console.log(JSON.stringify(params, null, 3));
       const c = await this.appService.setPrice(params);
       return c;
     } catch (error) {
