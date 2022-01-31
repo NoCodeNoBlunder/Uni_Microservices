@@ -292,36 +292,72 @@ export class BuilderService implements OnModuleInit {
   }
 
   async placeOrder(params: PlaceOrderDto) {
+    const orderDto = {
+      code: params.order,
+      product: params.product,
+      customer: params.customer,
+      address: params.address,
+      state: "order placed",
+    }
     const result = await this.orderModel.findOneAndUpdate(
         { code: params.order },
-        {
-          code: params.order,
-          product: params.product,
-          customer: params.customer,
-          address: params.address,
-          state: 'order placed',
-        },
-        {upsert: true, new: true}).exec()
-    console.log(`placeOrder stored: \n ${JSON.stringify(result, null, 3)}`)
+        orderDto,
+        { upsert:true, new: true}).exec()
+    console.log(`placeOrder stored: \n ${JSON.stringify(result, null, 3)}`);
 
-    await this.customersModel.findOneAndUpdate(
-        {name: params.customer},
-        {
-          name: params.customer,
-          lastAddress: params.address,
-        },
-        {upsert: true, new: true}
-    ).exec()
+    // TODO muss das hier weg? Albter hatte es nicht mehr 37:13
+    // await this.customersModel.findOneAndUpdate(
+    //     { name: params.customer },
+    //     {
+    //       name: params.customer,
+    //       lastAddress: params.address,
+    //     },
+    //     { upsert: true, new: true }
+    // ).exec()
 
     const event = {
       blockId: params.order,
       time: new Date().toISOString(),
       eventType: 'productOrdered',
       tags: ['products', params.order],
-      payload: params,
+      payload: orderDto,
     };
-
     await this.storeEvent(event);
+    // Notify the subscriber of this new event.
     this.publish(event);
+  }
+
+  // Find and return all the models where to customer attribute is customer.
+  async getOrdersOf(customer: string) {
+    return await this.orderModel.find({customer: customer}).exec();
+  }
+
+  async handleOrderPicked(event: BuildEvent) {
+    const params = event.payload
+    const order = await this.orderModel.findOneAndUpdate(
+        { code: params.code },
+        {
+          state: params.state
+        },
+        { new: true }
+    ).exec()
+
+    // TODO this is not complete.
+    const newEvent = {
+      blockId: order.code,
+      time: new Date().toISOString(),
+      eventType: 'orderPicked',
+      tags: ['orders', order.code],
+      payload: {
+        code: order.code,
+        product: order.product,
+        customer: order.product,
+        address: order.address,
+        state: order.state,
+      },
+    }
+
+    await this.storeEvent(newEvent);
+    return newEvent;
   }
 }

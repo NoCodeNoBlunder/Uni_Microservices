@@ -1,18 +1,11 @@
 // Shop Backed on port 3100
 
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  Post,
-  OnModuleInit,
-} from '@nestjs/common';
-import { AppService } from './app.service';
-import { BuildEvent } from './modules/builder/build-event.schema';
-import { HttpService } from '@nestjs/axios';
-import { SetPriceDto } from '../common/SetPriceDto';
-import { PlaceOrderDto } from '../common/PlaceOrderDto';
+import {Body, Controller, Get, OnModuleInit, Param, Post,} from '@nestjs/common';
+import {AppService} from './app.service';
+import {BuildEvent} from './modules/builder/build-event.schema';
+import {HttpService} from '@nestjs/axios';
+import {SetPriceDto} from '../common/SetPriceDto';
+import {PlaceOrderDto} from '../common/PlaceOrderDto';
 import Subscription from './modules/builder/subscription';
 
 @Controller()
@@ -45,7 +38,10 @@ export class AppController implements OnModuleInit {
                 JSON.stringify(eventList, null, 3),
             );
             for (const event of eventList) {
-              //console.log('AppController onModuleInit subscribe handle' + JSON.stringify(event, null, 3));
+              console.log(
+                'AppController onModuleInit subscribe handle' +
+                  JSON.stringify(event, null, 3),
+              );
               await this.appService.handleEvent(event);
             }
             console.log('Subscription from Shop to Warehouse succeeded.');
@@ -64,6 +60,19 @@ export class AppController implements OnModuleInit {
       );
   }
 
+  @Post('event')
+  async postEvent(@Body() event: BuildEvent) {
+    try {
+      console.log(
+        'MicroShop app controller postEvent got \n' +
+          JSON.stringify(event, null, 3),
+      );
+      return await this.appService.handleEvent(event);
+    } catch (error) {
+      return error;
+    }
+  }
+
   @Post('cmd/setPrice')
   async postCommand(@Body() params: SetPriceDto) {
     console.log('SETPRICE POST REQUEST');
@@ -71,8 +80,7 @@ export class AppController implements OnModuleInit {
 
     try {
       //this.logger.log(`\ngot command ${JSON.stringify(command, null, 3)}`)
-      const c = await this.appService.setPrice(params);
-      return c;
+      return await this.appService.setPrice(params);
     } catch (error) {
       console.log('Error?');
       return error;
@@ -115,19 +123,6 @@ export class AppController implements OnModuleInit {
   @Get('reset')
   async getReset() {
     return await this.appService.getReset();
-  }
-
-  @Post('event')
-  async postEvent(@Body() event: BuildEvent) {
-    try {
-      console.log(
-        'MicroShop app controller postEvent got \n' +
-          JSON.stringify(event, null, 3),
-      );
-      return await this.appService.handleEvent(event);
-    } catch (error) {
-      return error;
-    }
   }
 
   @Get()

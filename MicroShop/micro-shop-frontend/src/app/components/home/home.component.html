@@ -1,4 +1,20 @@
+<!--Shows the customer which items he has ordered and the status of these orders.-->
+
 <div class ="container">
+  <div class="row d-flex justify-content-center my-2">
+    <div class="col d-flex justify-content-center">
+      Hello {{customer}} <br>
+    </div>
+  </div>
+
+  <div class="row my-2 d-flex justify-content-center"
+       *ngFor="let order of orders">
+
+    <div class="col-6 d-flex justify-content-center">
+      <label>Your {{order.product}} are in state {{order.state}}</label>
+    </div>
+  </div>
+
   <div class="row d-flex justify-content-center my-2">
     <div class="col d-flex justify-content-center">
       On sale today:

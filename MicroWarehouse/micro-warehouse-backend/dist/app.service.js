@@ -1,59 +1,47 @@
 "use strict";
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppService = void 0;
 const common_1 = require("@nestjs/common");
-const builder_service_1 = require("./modules/builder/builder.service");
-let AppService = class AppService {
-    constructor(modelbuildService) {
-        this.modelbuildService = modelbuildService;
+class AppService {
+    constructor(modelBuilderService) {
+        this.modelBuilderService = modelBuilderService;
+        this.logger = new common_1.Logger(AppService.name);
     }
     async getQuery(key) {
-        const list = await this.modelbuildService.getByTag(key);
-        const answer = {
+        console.log('getQuery ' + key);
+        const list = await this.modelBuilderService.getByTag(key);
+        return {
             key: key,
             result: list,
         };
-        return answer;
     }
     async handleEvent(event) {
-        if (event.eventType === 'productPlaced') {
-            console.log('Warehouse app service handle event gets \n' +
-                JSON.stringify(event, null, 3));
+        if (event.eventType === 'productOrdered') {
+            return await this.modelBuilderService.handleProductOrdered(event);
         }
-        else {
-            return {
-                error: 'shop backend does not know how to handle ' + event.eventType,
-            };
-        }
+        return {
+            error: 'shop backend does not know how to hanlde ' + event.eventType,
+        };
     }
-    getHello() {
-        return 'Hello Course!';
+    async handleSubscription(subscription) {
+        return await this.modelBuilderService.handleSubscription(subscription);
     }
     async handleCommand(command) {
         if (command.opCode === 'storePalette') {
-            await this.modelbuildService.storePalette(command.parameters);
+            await this.modelBuilderService.storePalette(command.parameters);
             return command;
         }
         else {
             return `cannot handle ${command.opCode}`;
         }
     }
-    async handleSubscription(subscription) {
-        return await this.modelbuildService.handleSubscription(subscription);
+    async handlePickDone(params) {
+        await this.modelBuilderService.handlePickDone(params);
+        return 200;
     }
-};
-AppService = __decorate([
-    (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [builder_service_1.BuilderService])
-], AppService);
+    getHello() {
+        return 'Hello Course!';
+    }
+}
 exports.AppService = AppService;
 //# sourceMappingURL=app.service.js.map

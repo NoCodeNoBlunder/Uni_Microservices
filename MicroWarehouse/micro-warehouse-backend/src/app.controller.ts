@@ -5,20 +5,23 @@
  */
 
 import {
+  Body,
   Controller,
   Get,
-  Post,
-  Param,
-  Body,
+  Logger,
   OnModuleInit,
+  Param,
+  Post,
 } from '@nestjs/common';
 import { AppService } from './app.service';
 import Command from './modules/builder/command';
 import Subscription from './modules/builder/subscription';
 import { HttpService } from '@nestjs/axios';
+import { BuildEvent } from './modules/builder/build-event.schema';
 
 @Controller()
 export class AppController implements OnModuleInit {
+  logger = new Logger(AppController.name);
   constructor(
     private readonly appService: AppService,
     private httpService: HttpService,
@@ -71,10 +74,12 @@ export class AppController implements OnModuleInit {
    */
   @Get('query/:key')
   async getQuery(@Param('key') key: string): Promise<any> {
-    //return this.appService.getQuery(key);
+    // TODO why is this commented out.
+    // return this.appService.getQuery(key);
 
     console.log(`appController.getQuery called with key ${key}`);
-    const result: Promise<any> = await this.appService.getQuery(key);
+    console.log('KEY ' + key);
+    const result = await this.appService.getQuery(key);
     console.log(
       `appController.getQuery done ${JSON.stringify(result, null, 3)}\n`,
     );
@@ -85,20 +90,43 @@ export class AppController implements OnModuleInit {
   async postCommand(@Body() command: Command) {
     try {
       console.log(`got command ${JSON.stringify(command, null, 3)}`);
-      const c = await this.appService.handleCommand(command);
-      return c;
+      return await this.appService.handleCommand(command);
     } catch (error) {
       return error;
     }
   }
 
   @Post('subscribe')
-  async postSubscribe(@Body() subscripiton: Subscription) {
+  async postSubscribe(@Body() subscription: Subscription) {
     try {
-      if (subscripiton.isFirst) {
+      if (subscription.isFirst) {
         this.subscribeAtShop(true);
       }
-      return await this.appService.handleSubscription(subscripiton);
+      return await this.appService.handleSubscription(subscription);
+    } catch (error) {
+      return error;
+    }
+  }
+
+  // TODO what is @Body doing?
+  /**
+   * This is the place that the shop publishes to.
+   * @param event publishing event.
+   */
+  @Post('event')
+  async postEvent(@Body() event: BuildEvent) {
+    try {
+      return await this.appService.handleEvent(event);
+    } catch (error) {
+      return error;
+    }
+  }
+
+  @Post('cmd/pickDone')
+  async postPickDone(@Body() params: any) {
+    try {
+      this.logger.log(`\npostPickDone got ${JSON.stringify(params, null, 3)}`);
+      return await this.appService.handlePickDone(params);
     } catch (error) {
       return error;
     }

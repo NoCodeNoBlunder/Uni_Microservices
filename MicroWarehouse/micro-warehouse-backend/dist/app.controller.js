@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+var AppController_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppController = void 0;
 const common_1 = require("@nestjs/common");
@@ -18,10 +19,12 @@ const app_service_1 = require("./app.service");
 const command_1 = require("./modules/builder/command");
 const subscription_1 = require("./modules/builder/subscription");
 const axios_1 = require("@nestjs/axios");
-let AppController = class AppController {
+const build_event_schema_1 = require("./modules/builder/build-event.schema");
+let AppController = AppController_1 = class AppController {
     constructor(appService, httpService) {
         this.appService = appService;
         this.httpService = httpService;
+        this.logger = new common_1.Logger(AppController_1.name);
     }
     onModuleInit() {
         console.log('Micro Shop started');
@@ -54,6 +57,7 @@ let AppController = class AppController {
     }
     async getQuery(key) {
         console.log(`appController.getQuery called with key ${key}`);
+        console.log('KEY ' + key);
         const result = await this.appService.getQuery(key);
         console.log(`appController.getQuery done ${JSON.stringify(result, null, 3)}\n`);
         return result;
@@ -61,19 +65,35 @@ let AppController = class AppController {
     async postCommand(command) {
         try {
             console.log(`got command ${JSON.stringify(command, null, 3)}`);
-            const c = await this.appService.handleCommand(command);
-            return c;
+            return await this.appService.handleCommand(command);
         }
         catch (error) {
             return error;
         }
     }
-    async postSubscribe(subscripiton) {
+    async postSubscribe(subscription) {
         try {
-            if (subscripiton.isFirst) {
+            if (subscription.isFirst) {
                 this.subscribeAtShop(true);
             }
-            return await this.appService.handleSubscription(subscripiton);
+            return await this.appService.handleSubscription(subscription);
+        }
+        catch (error) {
+            return error;
+        }
+    }
+    async postEvent(event) {
+        try {
+            return await this.appService.handleEvent(event);
+        }
+        catch (error) {
+            return error;
+        }
+    }
+    async postPickDone(params) {
+        try {
+            this.logger.log(`\npostPickDone got ${JSON.stringify(params, null, 3)}`);
+            return await this.appService.handlePickDone(params);
         }
         catch (error) {
             return error;
@@ -105,12 +125,26 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AppController.prototype, "postSubscribe", null);
 __decorate([
+    (0, common_1.Post)('event'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [build_event_schema_1.BuildEvent]),
+    __metadata("design:returntype", Promise)
+], AppController.prototype, "postEvent", null);
+__decorate([
+    (0, common_1.Post)('cmd/pickDone'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AppController.prototype, "postPickDone", null);
+__decorate([
     (0, common_1.Get)(),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", String)
 ], AppController.prototype, "getHello", null);
-AppController = __decorate([
+AppController = AppController_1 = __decorate([
     (0, common_1.Controller)(),
     __metadata("design:paramtypes", [app_service_1.AppService,
         axios_1.HttpService])

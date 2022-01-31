@@ -11,6 +11,8 @@ const common_1 = require("@nestjs/common");
 const builder_service_1 = require("./builder.service");
 const mongoose_1 = require("@nestjs/mongoose");
 const build_event_schema_1 = require("./build-event.schema");
+const palette_schema_1 = require("./palette.schema");
+const pick_task_schema_1 = require("./pick-task.schema");
 const axios_1 = require("@nestjs/axios");
 let BuilderModule = class BuilderModule {
 };
@@ -20,6 +22,8 @@ BuilderModule = __decorate([
             axios_1.HttpModule,
             mongoose_1.MongooseModule.forFeature([
                 { name: 'eventStore', schema: build_event_schema_1.BuildEventSchema },
+                { name: 'pickTaskStore', schema: pick_task_schema_1.PickTaskSchema },
+                { name: 'paletteStore', schema: palette_schema_1.PaletteSchema },
             ]),
         ],
         providers: [builder_service_1.BuilderService],

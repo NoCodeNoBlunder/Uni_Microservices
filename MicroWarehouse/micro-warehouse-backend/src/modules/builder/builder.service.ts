@@ -1,9 +1,11 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { InjectModel } from '@nestjs/mongoose';
 import { BuildEvent } from './build-event.schema';
+import { Palette } from './palette.schema';
 import { Model } from 'mongoose';
 import subscription from './subscription';
+import { PickTask } from './pick-task.schema';
 
 /**
  * Specifies what collection to store the data into.
@@ -11,10 +13,14 @@ import subscription from './subscription';
 @Injectable()
 export class BuilderService implements OnModuleInit {
   subScriberUrls: string[] = [];
+  // TODO is this correct?
+  logger = new Logger(BuilderService.name);
 
   constructor(
     private httpService: HttpService,
     @InjectModel('eventStore') private buildEventModel: Model<BuildEvent>,
+    @InjectModel('pickTaskStore') private pickTaskModel: Model<PickTask>,
+    @InjectModel('paletteStore') private paletteModel: Model<Palette>,
   ) {}
 
   /**
@@ -68,7 +74,8 @@ export class BuilderService implements OnModuleInit {
   }
 
   async storePalette(palette: any) {
-    // Shoudl check the palette for consistency, later.
+    // Should check the palette for consistency, later.
+    // Changed In order to have the palletes in the module this method needs to change.
     palette.amount = Number(palette.amount);
     const event = {
       blockId: palette.barcode,
@@ -83,6 +90,9 @@ export class BuilderService implements OnModuleInit {
       const amount = await this.computeAmount(palette.product); // compute the new amount of this product.
 
       if (storeSuccess) {
+        // TODO new Callstack.
+        await this.storeModelPalette(palette);
+
         const newEvent = {
           eventType: 'productStored',
           blockId: palette.product,
@@ -170,5 +180,85 @@ export class BuilderService implements OnModuleInit {
         },
       );
     }
+  }
+
+  /**
+   * Finds all product with the name in db and gets all the location of these items.
+   * @param event
+   */
+  async handleProductOrdered(event: BuildEvent) {
+    const storeSuccess = await this.store(event);
+    if (storeSuccess) {
+      const params = event.payload;
+      const productPalettes = await this.paletteModel
+        .find({ product: params.product })
+        .exec();
+      const locations: string[] = [];
+      for (const pal of productPalettes) {
+        locations.push(pal.location);
+      }
+      const pickTask = {
+        code: params.code,
+        product: params.product,
+        address: params.customer + ', ' + params.address,
+        locations: locations,
+        state: 'order placed',
+      };
+      // TODO unused result.
+      const result = this.pickTaskModel
+        .findOneAndUpdate({ code: params.code }, pickTask, {
+          upsert: true,
+          new: true,
+        })
+        .exec();
+    }
+    return 200;
+  }
+
+  // Updates the palette after a Pick event occured.
+  async handlePickDone(params: any) {
+    const pal = await this.paletteModel
+      .findOneAndUpdate(
+        { location: params.location },
+        {
+          $inc: { amount: -1 },
+        },
+        { new: true }, // return the new palette.
+      )
+      .exec();
+    this.logger.log(`handlePickDone new pal \n${JSON.stringify(pal, null, 3)}`);
+
+    // Update pickTask
+    const pick = await this.pickTaskModel
+      .findOneAndUpdate(
+        { code: params.taskCode },
+        {
+          palette: pal.barcode,
+          state: 'shipping',
+        },
+        { new: true },
+      )
+      .exec();
+
+    // publish change
+    const event = {
+      eventType: 'orderPicked',
+      blockId: pick.code,
+      time: new Date().toISOString(),
+      tags: ['orders', pick.code],
+      payload: {
+        code: pick.code,
+        state: pick.state,
+      },
+    };
+
+    const storeSuccess = await this.store(event);
+    this.publish(event);
+  }
+
+  private async storeModelPalette(palette: any) {
+    await this.paletteModel
+      .findOneAndUpdate({ barcode: palette.barcode }, palette, { upsert: true })
+      .exec();
   }
 }

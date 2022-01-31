@@ -1,16 +1,20 @@
-import { OnModuleInit } from '@nestjs/common';
+import { Logger, OnModuleInit } from '@nestjs/common';
 import { AppService } from './app.service';
 import Command from './modules/builder/command';
 import Subscription from './modules/builder/subscription';
 import { HttpService } from '@nestjs/axios';
+import { BuildEvent } from './modules/builder/build-event.schema';
 export declare class AppController implements OnModuleInit {
     private readonly appService;
     private httpService;
+    logger: Logger;
     constructor(appService: AppService, httpService: HttpService);
     onModuleInit(): void;
     private subscribeAtShop;
     getQuery(key: string): Promise<any>;
     postCommand(command: Command): Promise<any>;
-    postSubscribe(subscripiton: Subscription): Promise<any>;
+    postSubscribe(subscription: Subscription): Promise<any>;
+    postEvent(event: BuildEvent): Promise<any>;
+    postPickDone(params: any): Promise<any>;
     getHello(): string;
 }

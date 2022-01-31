@@ -59,6 +59,27 @@ describe('Shop Test', () =>
     cy.get("#customerInput").type("Carli")
     cy.get("#submitOrderButton").click()
 
-    
+    cy.contains('Hello Carli')
+    cy.contains('Your jeans are in state order placed')
+  })
+
+  it('visit the warehouse frontend', () => {
+    cy.visit('http://localhost:4200')
+  })
+
+  it('clicks on the Pic Tasks button', () => {
+    cy.get('#pick-tasks-button').click()
+    cy.contains('Pick Tasks:')
+    cy.contains('jeans').click()
+  })
+
+  it('pick jeans from shelf 03', () => {
+    cy.get('#locationInput').type('shelf 03')
+    cy.get('#doneButton').click()
+    cy.contains('Pick Tasks:')
+  })
+
+  it('checks that carli is informed', () => {
+    cy.visit('http://localhost:4400/home/Carli')
   })
 })

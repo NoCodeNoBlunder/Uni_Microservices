@@ -1,13 +1,18 @@
-import { OnModuleInit } from '@nestjs/common';
+import { Logger, OnModuleInit } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { BuildEvent } from './build-event.schema';
+import { Palette } from './palette.schema';
 import { Model } from 'mongoose';
 import subscription from './subscription';
+import { PickTask } from './pick-task.schema';
 export declare class BuilderService implements OnModuleInit {
     private httpService;
     private buildEventModel;
+    private pickTaskModel;
+    private paletteModel;
     subScriberUrls: string[];
-    constructor(httpService: HttpService, buildEventModel: Model<BuildEvent>);
+    logger: Logger;
+    constructor(httpService: HttpService, buildEventModel: Model<BuildEvent>, pickTaskModel: Model<PickTask>, paletteModel: Model<Palette>);
     onModuleInit(): Promise<void>;
     getByTag(tag: string): Promise<(import("mongoose").Document<any, any, BuildEvent> & BuildEvent & {
         _id: import("mongoose").Types.ObjectId;
@@ -22,4 +27,7 @@ export declare class BuilderService implements OnModuleInit {
     })[]>;
     computeAmount(productName: string): Promise<number>;
     publish(newEvent: BuildEvent): void;
+    handleProductOrdered(event: BuildEvent): Promise<number>;
+    handlePickDone(params: any): Promise<void>;
+    private storeModelPalette;
 }

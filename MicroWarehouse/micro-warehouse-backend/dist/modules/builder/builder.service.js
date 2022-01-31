@@ -11,17 +11,21 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+var BuilderService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BuilderService = void 0;
 const common_1 = require("@nestjs/common");
 const axios_1 = require("@nestjs/axios");
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
-let BuilderService = class BuilderService {
-    constructor(httpService, buildEventModel) {
+let BuilderService = BuilderService_1 = class BuilderService {
+    constructor(httpService, buildEventModel, pickTaskModel, paletteModel) {
         this.httpService = httpService;
         this.buildEventModel = buildEventModel;
+        this.pickTaskModel = pickTaskModel;
+        this.paletteModel = paletteModel;
         this.subScriberUrls = [];
+        this.logger = new common_1.Logger(BuilderService_1.name);
     }
     async onModuleInit() {
         await this.clear();
@@ -56,6 +60,7 @@ let BuilderService = class BuilderService {
             const storeSuccess = await this.store(event);
             const amount = await this.computeAmount(palette.product);
             if (storeSuccess) {
+                await this.storeModelPalette(palette);
                 const newEvent = {
                     eventType: 'productStored',
                     blockId: palette.product,
@@ -116,11 +121,73 @@ let BuilderService = class BuilderService {
             });
         }
     }
+    async handleProductOrdered(event) {
+        const storeSuccess = await this.store(event);
+        if (storeSuccess) {
+            const params = event.payload;
+            const productPalettes = await this.paletteModel
+                .find({ product: params.product })
+                .exec();
+            const locations = [];
+            for (const pal of productPalettes) {
+                locations.push(pal.location);
+            }
+            const pickTask = {
+                code: params.code,
+                product: params.product,
+                address: params.customer + ', ' + params.address,
+                locations: locations,
+                state: 'order placed',
+            };
+            const result = this.pickTaskModel
+                .findOneAndUpdate({ code: params.code }, pickTask, {
+                upsert: true,
+                new: true,
+            })
+                .exec();
+        }
+        return 200;
+    }
+    async handlePickDone(params) {
+        const pal = await this.paletteModel
+            .findOneAndUpdate({ location: params.location }, {
+            $inc: { amount: -1 },
+        }, { new: true })
+            .exec();
+        this.logger.log(`handlePickDone new pal \n${JSON.stringify(pal, null, 3)}`);
+        const pick = await this.pickTaskModel
+            .findOneAndUpdate({ code: params.taskCode }, {
+            palette: pal.barcode,
+            state: 'shipping',
+        }, { new: true })
+            .exec();
+        const event = {
+            eventType: 'orderPicked',
+            blockId: pick.code,
+            time: new Date().toISOString(),
+            tags: ['orders', pick.code],
+            payload: {
+                code: pick.code,
+                state: pick.state,
+            },
+        };
+        const storeSuccess = await this.store(event);
+        this.publish(event);
+    }
+    async storeModelPalette(palette) {
+        await this.paletteModel
+            .findOneAndUpdate({ barcode: palette.barcode }, palette, { upsert: true })
+            .exec();
+    }
 };
-BuilderService = __decorate([
+BuilderService = BuilderService_1 = __decorate([
     (0, common_1.Injectable)(),
     __param(1, (0, mongoose_1.InjectModel)('eventStore')),
+    __param(2, (0, mongoose_1.InjectModel)('pickTaskStore')),
+    __param(3, (0, mongoose_1.InjectModel)('paletteStore')),
     __metadata("design:paramtypes", [axios_1.HttpService,
+        mongoose_2.Model,
+        mongoose_2.Model,
         mongoose_2.Model])
 ], BuilderService);
 exports.BuilderService = BuilderService;

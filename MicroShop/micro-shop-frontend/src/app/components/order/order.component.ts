@@ -56,7 +56,7 @@ export class OrderComponent implements OnInit {
       () => {
         // If it works show that it did with toast and navigate to home.
         this.toastService.success("Order", 'order submitted succesfully!');
-        this.router.navigate(["home"])
+        this.router.navigate(["home", this.formGroup.get('customer')?.value]);
       },
       (error) => {
         this.toastService.error("Edit Offer", `Problem:`, error);

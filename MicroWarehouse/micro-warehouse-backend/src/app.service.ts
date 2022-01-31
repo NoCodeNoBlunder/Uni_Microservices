@@ -1,14 +1,15 @@
 /** Defines the Operations that are used by app.controller.ts */
 
-import { Injectable } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { BuilderService } from './modules/builder/builder.service';
 import Command from './modules/builder/command';
 import Subscription from './modules/builder/subscription';
 import { BuildEvent } from './modules/builder/build-event.schema';
 
-@Injectable()
 export class AppService {
-  constructor(private readonly modelbuildService: BuilderService) {}
+  logger = new Logger(AppService.name);
+
+  constructor(private readonly modelBuilderService: BuilderService) {}
 
   /**
    * Creates the answer with dummy data for now as a list of JSON objects.
@@ -16,31 +17,37 @@ export class AppService {
    */
   async getQuery(key: string): Promise<any> {
     // Info await says this operations needs a lot of time. But has to be waited for. But I can go on without waiting for it.
-    const list = await this.modelbuildService.getByTag(key);
-    const answer = {
+    console.log('getQuery ' + key);
+    const list = await this.modelBuilderService.getByTag(key);
+    return {
       key: key,
       result: list,
     };
-
-    return answer;
   }
 
+  // TODO how does mutual subscription work?
   async handleEvent(event: BuildEvent) {
-    if (event.eventType === 'productPlaced') {
-      //return await this.modelBuilderService.handleOrderPlaced(event);
-      console.log(
-        'Warehouse app service handle event gets \n' +
-          JSON.stringify(event, null, 3),
-      );
-    } else {
-      return {
-        error: 'shop backend does not know how to handle ' + event.eventType,
-      };
+    if (event.eventType === 'productOrdered') {
+      return await this.modelBuilderService.handleProductOrdered(event);
     }
+
+    return {
+      error: 'shop backend does not know how to hanlde ' + event.eventType,
+    };
+
+    //   console.log(
+    //     'Warehouse app service handle event gets \n' +
+    //       JSON.stringify(event, null, 3),
+    //   );
+    // } else {
+    //   return {
+    //     error: 'shop backend does not know how to handle ' + event.eventType,
+    //   };
+    // }
   }
 
-  getHello(): string {
-    return 'Hello Course!';
+  async handleSubscription(subscription: Subscription) {
+    return await this.modelBuilderService.handleSubscription(subscription);
   }
 
   /**
@@ -49,14 +56,19 @@ export class AppService {
    */
   async handleCommand(command: Command) {
     if (command.opCode === 'storePalette') {
-      await this.modelbuildService.storePalette(command.parameters);
+      await this.modelBuilderService.storePalette(command.parameters);
       return command;
     } else {
       return `cannot handle ${command.opCode}`;
     }
   }
 
-  async handleSubscription(subscription: Subscription) {
-    return await this.modelbuildService.handleSubscription(subscription);
+  async handlePickDone(params: any) {
+    await this.modelBuilderService.handlePickDone(params);
+    return 200;
+  }
+
+  getHello(): string {
+    return 'Hello Course!';
   }
 }

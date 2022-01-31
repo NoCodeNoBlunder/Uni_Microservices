@@ -9,15 +9,6 @@ import Subscription from './modules/builder/subscription';
 export class AppService {
   constructor(private readonly modelBuilderService: BuilderService) {}
 
-  getHello(): string {
-    return 'Hello Course!';
-  }
-
-  async getReset() {
-    await this.modelBuilderService.reset();
-    return 'The shop database was cleared.';
-  }
-
   /**
    * Handled the event that is coming in. Demultiplexing of event types.
    */
@@ -28,6 +19,8 @@ export class AppService {
       return await this.modelBuilderService.handleAddOffer(event);
     } else if (event.eventType === 'placeOrder') {
       return await this.modelBuilderService.handlePlaceOrder(event);
+    } else if (event.eventType === 'orderPicked') {
+      return await this.modelBuilderService.handleOrderPicked(event);
     }
     return {
       error: 'shop backend does not know how to handle ' + event.eventType,
@@ -44,6 +37,9 @@ export class AppService {
     } else if (key.startsWith('product-')) {
       const name = key.substring('product-'.length);
       return await this.modelBuilderService.getProduct(name);
+    } else if (key.startsWith('orders_')) {
+      const customer = key.substring('orders_'.length);
+      return await this.modelBuilderService.getOrdersOf(customer);
     } else {
       return {
         error: 'Mircoshop backend does not know how to handle query key ' + key,
@@ -59,10 +55,19 @@ export class AppService {
 
   async placeOrder(params: PlaceOrderDto) {
     await this.modelBuilderService.placeOrder(params);
-    return 200;
+    return 200; // INFO why 200 here?
   }
 
-  async handleSubscription(subsription: Subscription) {
-    return await this.modelBuilderService.handleSubscription(subsription);
+  async handleSubscription(subscription: Subscription) {
+    return await this.modelBuilderService.handleSubscription(subscription);
+  }
+
+  async getReset() {
+    await this.modelBuilderService.reset();
+    return 'The shop database was cleared.';
+  }
+
+  getHello(): string {
+    return 'Hello Course!';
   }
 }
