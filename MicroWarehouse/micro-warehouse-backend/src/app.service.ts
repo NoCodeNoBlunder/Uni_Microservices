@@ -4,6 +4,7 @@ import { Injectable } from '@nestjs/common';
 import { BuilderService } from './modules/builder/builder.service';
 import Command from './modules/builder/command';
 import Subscription from './modules/builder/subscription';
+import { BuildEvent } from './modules/builder/build-event.schema';
 
 @Injectable()
 export class AppService {
@@ -22,6 +23,20 @@ export class AppService {
     };
 
     return answer;
+  }
+
+  async handleEvent(event: BuildEvent) {
+    if (event.eventType === 'productPlaced') {
+      //return await this.modelBuilderService.handleOrderPlaced(event);
+      console.log(
+        'Warehouse app service handle event gets \n' +
+          JSON.stringify(event, null, 3),
+      );
+    } else {
+      return {
+        error: 'shop backend does not know how to handle ' + event.eventType,
+      };
+    }
   }
 
   getHello(): string {

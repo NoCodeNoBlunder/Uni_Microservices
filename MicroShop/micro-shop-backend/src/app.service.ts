@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { BuildEvent } from './modules/builder/build-event.schema';
 import { BuilderService } from './modules/builder/builder.service';
 import { SetPriceDto } from '../common/SetPriceDto';
+import { PlaceOrderDto } from '../common/PlaceOrderDto';
+import Subscription from './modules/builder/subscription';
 
 @Injectable()
 export class AppService {
@@ -53,5 +55,14 @@ export class AppService {
     // console.log("App Service setPrice()");
     // console.log(JSON.stringify(params, null, 3));
     return await this.modelBuilderService.setPrice(params);
+  }
+
+  async placeOrder(params: PlaceOrderDto) {
+    await this.modelBuilderService.placeOrder(params);
+    return 200;
+  }
+
+  async handleSubscription(subsription: Subscription) {
+    return await this.modelBuilderService.handleSubscription(subsription);
   }
 }

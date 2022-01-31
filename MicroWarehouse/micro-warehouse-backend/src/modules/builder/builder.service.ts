@@ -114,7 +114,7 @@ export class BuilderService implements OnModuleInit {
       this.subScriberUrls.push(subscription.subscriberUrl);
     }
 
-    // publish evnet after last event
+    // publish event after last event
     const eventList = await this.buildEventModel
       .find({
         // TODO eventType: 'productStored', ?
@@ -146,6 +146,7 @@ export class BuilderService implements OnModuleInit {
     return sum;
   }
 
+  // Communicate with shop-backend.
   publish(newEvent: BuildEvent) {
     console.log(
       'build service publish subsribersUrls:\n' +

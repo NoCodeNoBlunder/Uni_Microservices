@@ -8,11 +8,18 @@ import { MSProduct } from "./product.schema";
 import { Order } from "./order.schema";
 import { Customer } from "./customer.schema";
 import { SetPriceDto } from "../../../common/SetPriceDto";
+import { PlaceOrderDto } from "../../../common/PlaceOrderDto";
+import { HttpService } from "@nestjs/axios";
+import Subscription from "./subscription";
 
 
 @Injectable()
 export class BuilderService implements OnModuleInit {
+
+  private subscriberUrls: string[] = []
+
   constructor(
+    private httpService: HttpService,
     @InjectModel('eventStore') private buildEventModel: Model<BuildEvent>,
     @InjectModel('products') private productsModel: Model<MSProduct>,
     @InjectModel('orders') private orderModel: Model<Order>,
@@ -240,12 +247,81 @@ export class BuilderService implements OnModuleInit {
     // console.log("Builder.service setPrice()");
     // console.log(JSON.stringify(params, null, 3));
 
-    return await this.productsModel
+    const test = await this.productsModel
         .findOneAndUpdate(
             { product: params.product },
             { price: `${params.price}` },
             { new: true },
         )
         .exec();
+    console.log("RETURN VALUE:");
+    console.log(JSON.stringify(test, null, 3));
+    return test;
+  }
+
+  // TODO HA 11 mutual subscription.
+  publish (newEvent: BuildEvent) {
+    console.log(`build service publish subscriberUrls: \n` + JSON.stringify(this.subscriberUrls, null, 3));
+    const oldUrls = this.subscriberUrls;
+    this.subscriberUrls = [];
+    // TODO const here?
+    for (const subscriberUrl of oldUrls) {
+      this.httpService.post(subscriberUrl, newEvent).subscribe(
+          (response) => {
+            console.log('Warehouse builder service publish post response is \n' + JSON.stringify(response.data, null, 3))
+            this.subscriberUrls.push(subscriberUrl);
+          },
+          (error) => {
+            console.log(`build service publish error: \n` + JSON.stringify(error, null, 3));
+          });
+    }
+  }
+
+  async handleSubscription(subscription: Subscription) {
+    if (!this.subscriberUrls.includes(subscription.subscriberUrl)) {
+      this.subscriberUrls.push(subscription.subscriberUrl);
+    }
+
+    const eventList = await this.buildEventModel
+        .find({
+          eventType: 'productOrdered',
+          time: { $gt: subscription.lastEventTime },
+        })
+        .exec();
+    return eventList;
+  }
+
+  async placeOrder(params: PlaceOrderDto) {
+    const result = await this.orderModel.findOneAndUpdate(
+        { code: params.order },
+        {
+          code: params.order,
+          product: params.product,
+          customer: params.customer,
+          address: params.address,
+          state: 'order placed',
+        },
+        {upsert: true, new: true}).exec()
+    console.log(`placeOrder stored: \n ${JSON.stringify(result, null, 3)}`)
+
+    await this.customersModel.findOneAndUpdate(
+        {name: params.customer},
+        {
+          name: params.customer,
+          lastAddress: params.address,
+        },
+        {upsert: true, new: true}
+    ).exec()
+
+    const event = {
+      blockId: params.order,
+      time: new Date().toISOString(),
+      eventType: 'productOrdered',
+      tags: ['products', params.order],
+      payload: params,
+    };
+
+    await this.storeEvent(event);
+    this.publish(event);
   }
 }

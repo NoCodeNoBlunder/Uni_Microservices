@@ -1,16 +1,69 @@
 /**
+ * Warehouse backed on port 3000.
  * The app.controller.ts is the place where the browser will send its request to and it will
  * respond with the appropriate answer, binding the URL request to an operation
  */
 
-import { Controller, Get, Post, Param, Body } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Param,
+  Body,
+  OnModuleInit,
+} from '@nestjs/common';
 import { AppService } from './app.service';
 import Command from './modules/builder/command';
 import Subscription from './modules/builder/subscription';
+import { HttpService } from '@nestjs/axios';
 
 @Controller()
-export class AppController {
-  constructor(private readonly appService: AppService) {}
+export class AppController implements OnModuleInit {
+  constructor(
+    private readonly appService: AppService,
+    private httpService: HttpService,
+  ) {}
+
+  onModuleInit() {
+    //subscribe at warehouse
+    console.log('Micro Shop started');
+    this.subscribeAtShop(false);
+  }
+
+  private subscribeAtShop(isSubscribed: boolean) {
+    this.httpService
+      .post('http://localhost:3100/subscribe', {
+        subscriberUrl: 'http://localhost:3000/event',
+        lastEventTime: '0',
+        success: isSubscribed,
+      })
+      .subscribe(
+        async (response) => {
+          try {
+            const eventList: any[] = response.data;
+            console.log(
+              'AppController onModuleInit subscribe list' +
+                JSON.stringify(eventList, null, 3),
+            );
+            for (const event of eventList) {
+              //console.log('AppController onModuleInit subscribe handle' + JSON.stringify(event, null, 3));
+              await this.appService.handleEvent(event);
+            }
+            console.log('Subscription from Warehouse to Shop succeeded.');
+          } catch (error) {
+            console.log(
+              'AppController onModuleInit subscribe handleEvent error' +
+                JSON.stringify(error, null, 3),
+            );
+          }
+        },
+        (error) => {
+          console.log(
+            'AppController onModuleInit error' + JSON.stringify(error, null, 3),
+          );
+        },
+      );
+  }
 
   /**
    * Binds this operation to the URL requested in @Get
@@ -42,8 +95,10 @@ export class AppController {
   @Post('subscribe')
   async postSubscribe(@Body() subscripiton: Subscription) {
     try {
-      const c = await this.appService.handleSubscription(subscripiton);
-      return c;
+      if (subscripiton.isFirst) {
+        this.subscribeAtShop(true);
+      }
+      return await this.appService.handleSubscription(subscripiton);
     } catch (error) {
       return error;
     }

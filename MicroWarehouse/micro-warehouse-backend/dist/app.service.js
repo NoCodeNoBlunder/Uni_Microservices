@@ -24,6 +24,17 @@ let AppService = class AppService {
         };
         return answer;
     }
+    async handleEvent(event) {
+        if (event.eventType === 'productPlaced') {
+            console.log('Warehouse app service handle event gets \n' +
+                JSON.stringify(event, null, 3));
+        }
+        else {
+            return {
+                error: 'shop backend does not know how to handle ' + event.eventType,
+            };
+        }
+    }
     getHello() {
         return 'Hello Course!';
     }

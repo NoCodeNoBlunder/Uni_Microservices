@@ -1,0 +1,45 @@
+
+<form [formGroup]="formGroup" (ngSubmit)="submitOffer()">
+  <div class="container">
+    <div class="row d-flex justify-content-center my-2">
+      <div class="col d-flex justify-content-center">
+        Order details:
+      </div>
+    </div>
+
+    <div class="row d-flex justify-content-center my-2">
+      <div class="col d-flex justify-content-center">
+        <input id="orderInput" type="text" placeholder="order id?" formControlName="order" [style.color]="!formGroup.value.productName?'black':null">
+      </div>
+    </div>
+
+    <div class="row d-flex justify-content-center my-2">
+      <div class="col d-flex justify-content-center">
+        <input id="productInput" type="text" placeholder="product?" formControlName="product" [style.color]="!formGroup.value.productPrice?'black':null">
+      </div>
+    </div>
+
+    <div class="row d-flex justify-content-center my-2">
+      <div class="col d-flex justify-content-center">
+        <input id="customerInput" type="text" placeholder="your name?" formControlName="customer" [style.color]="!formGroup.value.productName?'black':null">
+      </div>
+    </div>
+
+    <div class="row d-flex justify-content-center my-2">
+      <div class="col d-flex justify-content-center">
+        <input id="addressInput" type="text" placeholder="your address?" formControlName="address" [style.color]="!formGroup.value.productPrice?'black':null">
+      </div>
+    </div>
+
+    <div class="row d-flex justify-content-center my-2">
+      <div class="col d-flex justify-content-center">
+        <button id="submitOrderButton" type="submit" [disabled]="!formGroup.valid" class="btn btn-primary">Submit</button>
+      </div>
+    </div>
+
+    <p>{{formGroup.status}} {{formGroup.errors}} </p>
+
+    <p>{{debugOut}}</p>
+  </div>
+</form>
+

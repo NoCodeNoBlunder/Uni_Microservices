@@ -12,6 +12,7 @@ const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
 const mongoose_1 = require("@nestjs/mongoose");
 const builder_module_1 = require("./modules/builder/builder.module");
+const axios_1 = require("@nestjs/axios");
 let AppModule = class AppModule {
 };
 AppModule = __decorate([
@@ -19,6 +20,7 @@ AppModule = __decorate([
         imports: [
             mongoose_1.MongooseModule.forRoot('mongodb+srv://NoCodeNoBlunder:G9WoGkLT4OPArMJr@cluster0.om2tq.mongodb.net/warehouse-datebase?retryWrites=true&w=majority'),
             builder_module_1.BuilderModule,
+            axios_1.HttpModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],
