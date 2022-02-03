@@ -1,0 +1,80 @@
+
+<div class ="container">
+
+  <div class="col d-flex justify-content-center">
+    <h2 class="fw-bold text-primary text-center my-4">Pick Tasks:</h2>
+  </div>
+
+    <a class="row my-2 d-flex justify-content-center" [routerLink]="['/pick-tasks/edit-pick/', pickTask.code]"
+       *ngFor="let pickTask of pickTasks">
+
+      <div class="col-3 d-flex justify-content-center">
+        <label>{{pickTask.code}}</label>
+      </div>
+      <div class="col-2 d-flex">
+        <label>{{pickTask.product}} </label>
+      </div>
+      <div class="col-2 d-flex">
+        <label>{{pickTask.state}} </label>
+      </div>
+      <div class="col-2 d-flex">
+        <label>{{pickTask.address}} </label>
+      </div>
+      <div class="col-2 d-flex">
+        <label>{{pickTask.locations}} </label>
+      </div>
+    </a>
+
+
+
+  <!--<a class="row my-2 d-flex justify-content-center" [routerLink]="['/home']"-->
+  <!--     *ngFor="let pickTask of pickTasks">-->
+  <!--      <div class="col-6 d-flex justify-content-center">-->
+  <!--        <label>{{pickTask.code}}  </label>-->
+  <!--      </div>-->
+  <!--      <div class="col-6 d-flex justify-content-center">-->
+  <!--        <label>{{pickTask.product}}  </label>-->
+  <!--      </div>-->
+  <!--      <div class="col-6 d-flex justify-content-center">-->
+  <!--        <label>{{pickTask.state}}  </label>-->
+  <!--      </div>-->
+
+  <!--       <div class="col-6 d-flex justify-content-center">-->
+  <!--        <label>{{pickTask.address}}  </label>-->
+  <!--      </div>-->
+
+  <!--       <div class="col-6 d-flex justify-content-center">-->
+  <!--        <label>{{pickTask.locations}}  </label>-->
+  <!--      </div>-->
+  <!--</a>-->
+
+  <!--<table class="table">-->
+  <!--  <thead class="thead-dark">-->
+  <!--  <tr>-->
+  <!--    <th scope="col">Produkt ID</th>-->
+  <!--    <th scope="col">Product</th>-->
+  <!--    <th scope="col">State</th>-->
+  <!--    <th scope="col">Customer, Address</th>-->
+  <!--    <th scope="col">Location</th>-->
+  <!--  </tr>-->
+  <!--  </thead>-->
+
+  <!--  <tbody>-->
+  <!--  -->
+  <!--  <tr *ngFor="let picktask of pickTasks" [routerLink]="['/home/order', picktask.code]">-->
+  <!--    <td><a [routerLink]="['/home/order', picktask.code]"></a>{{picktask.code}}</td>-->
+  <!--    <td><a [routerLink]="['/home/order', picktask.product]"></a>{{picktask.code}}</td>-->
+  <!--    <td><a [routerLink]="['/home/order', picktask.state]"></a>{{picktask.code}}</td>-->
+  <!--    <td><a [routerLink]="['/home/order', picktask.address]"></a>{{picktask.code}}</td>-->
+  <!--    <td><a [routerLink]="['/home/order', picktask.locations]"></a>{{picktask.code}}</td>-->
+  <!--    <td>{{picktask.code}}</td>-->
+  <!--    <td>{{picktask.product}}</td>-->
+  <!--    <td>{{picktask.state}}</td>-->
+  <!--    <td>{{picktask.address}}</td>-->
+  <!--    <td>{{picktask.locations}}</td>-->
+  <!--  </tr>-->
+  <!--  </tbody>-->
+
+  <!--</table>-->
+
+</div>

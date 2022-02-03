@@ -38,8 +38,13 @@ export class BuilderService implements OnModuleInit {
   getByTag(tag: string) {
     console.log('getByTag called with ' + tag);
     // INFO find is another mongodb query. create and run query.
-    const list = this.buildEventModel.find({ tags: tag }).exec();
-    return list;
+    return this.buildEventModel.find({ tags: tag }).exec();
+  }
+
+  async getOrdersToPick() {
+    const c = this.pickTaskModel.find({}).exec();
+    console.log('Builder Service WH BE: ' + JSON.stringify(c, null, 3));
+    return c;
   }
 
   /**
@@ -68,9 +73,11 @@ export class BuilderService implements OnModuleInit {
   /**
    * Clears the the Collection eventstores from the mongoDB.
    */
-  clear() {
-    // TODO use remove hier
-    return this.buildEventModel.remove();
+  async clear() {
+    // return this.buildEventModel.remove();
+    await this.paletteModel.deleteMany();
+    await this.buildEventModel.deleteMany();
+    await this.pickTaskModel.deleteMany();
   }
 
   async storePalette(palette: any) {
@@ -119,6 +126,9 @@ export class BuilderService implements OnModuleInit {
 
   async handleSubscription(subscription: subscription) {
     // store in subscribter list
+    console.log(
+      'WAREHOUSE handleSubscription with: ' + subscription.subscriberUrl,
+    );
     if (!this.subScriberUrls.includes(subscription.subscriberUrl)) {
       // Add the new subscriberUrl is not allready in the array add it.
       this.subScriberUrls.push(subscription.subscriberUrl);
@@ -187,6 +197,10 @@ export class BuilderService implements OnModuleInit {
    * @param event
    */
   async handleProductOrdered(event: BuildEvent) {
+    console.log(
+      'WE builder.service ProductOrdred() is called with event:' +
+        JSON.stringify(event, null, 3),
+    );
     const storeSuccess = await this.store(event);
     if (storeSuccess) {
       const params = event.payload;
@@ -217,6 +231,7 @@ export class BuilderService implements OnModuleInit {
 
   // Updates the palette after a Pick event occured.
   async handlePickDone(params: any) {
+    // Update palette.
     const pal = await this.paletteModel
       .findOneAndUpdate(
         { location: params.location },
@@ -228,13 +243,14 @@ export class BuilderService implements OnModuleInit {
       .exec();
     this.logger.log(`handlePickDone new pal \n${JSON.stringify(pal, null, 3)}`);
 
-    // Update pickTask
+    // Update pickTask.
     const pick = await this.pickTaskModel
+      // TODO Muss ich die Attribute die nicht verändert werden solle auch angeben?
       .findOneAndUpdate(
-        { code: params.taskCode },
+        { code: params.code },
         {
           palette: pal.barcode,
-          state: 'shipping',
+          state: params.state, // Here the new state is assigned.
         },
         { new: true },
       )
@@ -261,4 +277,30 @@ export class BuilderService implements OnModuleInit {
       .findOneAndUpdate({ barcode: palette.barcode }, palette, { upsert: true })
       .exec();
   }
+
+  async reset() {
+    await this.clear();
+  }
+
+  async orderToPick(orderID: string) {
+    console.log('orderToPick called with ID:' + orderID);
+    const c = await this.pickTaskModel.findOne({ code: orderID }).exec();
+    console.log('Result', JSON.stringify(c, null, 3));
+    return c;
+    // return await this.pickTaskModel.findOne({ code: orderID }).exec();
+  }
+
+  // async setOrderStatus(params: PickTask) {
+  //   const pickTaskDto = {
+  //     // These remain the same.
+  //     code: params.code,
+  //     product: params.product,
+  //     address: params.address,
+  //     palette: params.palette,
+  //
+  //     // These have to change?
+  //     state:
+  //
+  //   }
+  // }
 }

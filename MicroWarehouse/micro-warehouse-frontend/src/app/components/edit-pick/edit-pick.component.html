@@ -1,0 +1,39 @@
+
+
+
+<form [formGroup]="formGroup" (ngSubmit)="submitPickTask()">
+  <div class="container">
+    <div class="row d-flex justify-content-center my-2">
+      <div class="col d-flex justify-content-center">
+        <h1 class="fw-bold text-primary text-center my-4">Edit-Pick:</h1>
+      </div>
+    </div>
+
+    <div class="row d-flex justify-content-center my-2">
+      <div class="col d-flex justify-content-center">
+        <input id="name" type="text" placeholder="product name?" formControlName="product">
+      </div>
+    </div>
+
+    <!--<div *ngIf="formGroup.get('productName')?.errors && formGroup.get('product')?.dirty" class="row d-flex justify-content-center my-2">-->
+    <!--  <div class="col d-flex justify-content-center">-->
+    <!--    Location should be in {{validLocations}}-->
+    <!--  </div>-->
+    <!--</div>-->
+
+    <div class="row d-flex justify-content-center my-2">
+      <div class="col d-flex justify-content-center">
+        <input id="price" type="text" placeholder="Location ?" formControlName="location">
+      </div>
+    </div>
+
+    <div class="row d-flex justify-content-center my-2">
+      <div class="col d-flex justify-content-center">
+        <button id="submitOfferButton" type="submit" [disabled]="!formGroup.valid" class="btn btn-primary">Submit</button>
+      </div>
+    </div>
+
+    <p>{{formGroup.status}} {{formGroup.errors}}</p>
+    <p>Product(s) Location(s): {{locations}}</p>
+  </div>
+</form>

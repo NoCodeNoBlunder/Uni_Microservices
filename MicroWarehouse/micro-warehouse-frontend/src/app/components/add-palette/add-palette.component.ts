@@ -1,7 +1,8 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { HttpClient } from "@angular/common/http";
-import { newArray } from "@angular/compiler/src/util";
-import { Router } from "@angular/router";
+import { Router } from '@angular/router';
+//import { ConsoleReporter } from 'jasmine';
+//import { StoreTasksComponent } from '../store-tasks/store-tasks.component';
 
 @Component({
   selector: 'app-add-palette',
@@ -10,18 +11,15 @@ import { Router } from "@angular/router";
 })
 export class AddPaletteComponent implements OnInit {
 
-  /**
-   * Inject inject the router in your component constructor
-   */
-  constructor(private  http: HttpClient, private router: Router) { };
+  constructor(private http: HttpClient, private router: Router) { }
 
-  barcode = ""
+  barcode = ''
 
-  product = ""
+  product = ''
 
-  amount = ""
+  amount = ''
 
-  location = ""
+  location = ''
 
   ngOnInit(): void {
   }
@@ -31,28 +29,26 @@ export class AddPaletteComponent implements OnInit {
       barcode: this.barcode,
       product: this.product,
       amount: this.amount,
-      location: this.location,
+      location: this.location
     }
 
-    /**
-     * We create a new command here. So when new data is entered in the frontend and we want to store
-     * it we create a new event and store it in the database.
-     */
     const newCmd = {
-      opCode: 'storePalette', // will decide which event type it is.
-      parameters: newPalette, // parameters will be the payload.
+      opCode: 'storePalette',
+      parameters: newPalette,
     }
 
-    /**
-     * This operation might fail if the database cannot return the data. I.e the cloud is down.
-     * Therefore We use exception handling.
-     */
-    try {
-      const response = await this.http.post<any>('http://localhost:3000/cmd', newCmd).toPromise();
-      console.log(`post has been send ${JSON.stringify(response, null, 3)}`);
-      await this.router.navigate(['/store-tasks']);
-    } catch (error) {
-      console.log(`post error`)
-    }
+    //try {
+    //  const response = await this.http.post<any>('http://localhost:3000/cmd', newCmd).toPromise();
+    //  console.log(`post has been sent ${JSON.stringify(response, null, 3)}`);
+    //  await this.router.navigate(['/store-tasks']);
+    //} catch (error) {
+    //  console.log(`post error`);
+    //}
+    //console.log(JSON.stringify(newCmd, null, 3))
+
+    this.http.post<any>('http://localhost:3000/cmd', newCmd).subscribe(
+      () => this.router.navigate(['store-tasks'])
+    );
   }
+
 }

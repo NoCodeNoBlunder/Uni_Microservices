@@ -27,7 +27,7 @@ let AppController = AppController_1 = class AppController {
         this.logger = new common_1.Logger(AppController_1.name);
     }
     onModuleInit() {
-        console.log('Micro Shop started');
+        console.log('Warehouse started');
         this.subscribeAtShop(false);
     }
     subscribeAtShop(isSubscribed) {
@@ -40,9 +40,11 @@ let AppController = AppController_1 = class AppController {
             .subscribe(async (response) => {
             try {
                 const eventList = response.data;
-                console.log('AppController onModuleInit subscribe list' +
+                console.log('AppController onModuleInit subscribe list: ' +
                     JSON.stringify(eventList, null, 3));
                 for (const event of eventList) {
+                    console.log('AppController onModuleInit subscribe handle' +
+                        JSON.stringify(event, null, 3));
                     await this.appService.handleEvent(event);
                 }
                 console.log('Subscription from Warehouse to Shop succeeded.');
@@ -54,6 +56,28 @@ let AppController = AppController_1 = class AppController {
         }, (error) => {
             console.log('AppController onModuleInit error' + JSON.stringify(error, null, 3));
         });
+    }
+    async postSubscribe(subscription) {
+        try {
+            if (subscription.success) {
+                this.subscribeAtShop(true);
+            }
+            return await this.appService.handleSubscription(subscription);
+        }
+        catch (error) {
+            return error;
+        }
+    }
+    async postEvent(event) {
+        try {
+            return await this.appService.handleEvent(event);
+        }
+        catch (error) {
+            return error;
+        }
+    }
+    async getEvent(product) {
+        return await this.appService.getEvent(product);
     }
     async getQuery(key) {
         console.log(`appController.getQuery called with key ${key}`);
@@ -71,26 +95,8 @@ let AppController = AppController_1 = class AppController {
             return error;
         }
     }
-    async postSubscribe(subscription) {
-        try {
-            if (subscription.isFirst) {
-                this.subscribeAtShop(true);
-            }
-            return await this.appService.handleSubscription(subscription);
-        }
-        catch (error) {
-            return error;
-        }
-    }
-    async postEvent(event) {
-        try {
-            return await this.appService.handleEvent(event);
-        }
-        catch (error) {
-            return error;
-        }
-    }
     async postPickDone(params) {
+        console.log('[app.controller] postPickDone called.');
         try {
             this.logger.log(`\npostPickDone got ${JSON.stringify(params, null, 3)}`);
             return await this.appService.handlePickDone(params);
@@ -99,24 +105,13 @@ let AppController = AppController_1 = class AppController {
             return error;
         }
     }
+    async getReset() {
+        return await this.appService.getReset();
+    }
     getHello() {
         return this.appService.getHello();
     }
 };
-__decorate([
-    (0, common_1.Get)('query/:key'),
-    __param(0, (0, common_1.Param)('key')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Promise)
-], AppController.prototype, "getQuery", null);
-__decorate([
-    (0, common_1.Post)('cmd'),
-    __param(0, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [command_1.default]),
-    __metadata("design:returntype", Promise)
-], AppController.prototype, "postCommand", null);
 __decorate([
     (0, common_1.Post)('subscribe'),
     __param(0, (0, common_1.Body)()),
@@ -132,12 +127,39 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AppController.prototype, "postEvent", null);
 __decorate([
+    (0, common_1.Get)('event'),
+    __param(0, (0, common_1.Param)('product')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], AppController.prototype, "getEvent", null);
+__decorate([
+    (0, common_1.Get)('query/:key'),
+    __param(0, (0, common_1.Param)('key')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], AppController.prototype, "getQuery", null);
+__decorate([
+    (0, common_1.Post)('cmd'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [command_1.default]),
+    __metadata("design:returntype", Promise)
+], AppController.prototype, "postCommand", null);
+__decorate([
     (0, common_1.Post)('cmd/pickDone'),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], AppController.prototype, "postPickDone", null);
+__decorate([
+    (0, common_1.Get)('reset'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], AppController.prototype, "getReset", null);
 __decorate([
     (0, common_1.Get)(),
     __metadata("design:type", Function),

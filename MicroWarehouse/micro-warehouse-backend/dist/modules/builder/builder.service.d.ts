@@ -17,10 +17,11 @@ export declare class BuilderService implements OnModuleInit {
     getByTag(tag: string): Promise<(import("mongoose").Document<any, any, BuildEvent> & BuildEvent & {
         _id: import("mongoose").Types.ObjectId;
     })[]>;
-    store(event: BuildEvent): Promise<boolean>;
-    clear(): import("mongoose").Query<any, import("mongoose").Document<any, any, BuildEvent> & BuildEvent & {
+    getOrdersToPick(): Promise<(import("mongoose").Document<any, any, PickTask> & PickTask & {
         _id: import("mongoose").Types.ObjectId;
-    }, {}, BuildEvent>;
+    })[]>;
+    store(event: BuildEvent): Promise<boolean>;
+    clear(): Promise<void>;
     storePalette(palette: any): Promise<any>;
     handleSubscription(subscription: subscription): Promise<(import("mongoose").Document<any, any, BuildEvent> & BuildEvent & {
         _id: import("mongoose").Types.ObjectId;
@@ -30,4 +31,8 @@ export declare class BuilderService implements OnModuleInit {
     handleProductOrdered(event: BuildEvent): Promise<number>;
     handlePickDone(params: any): Promise<void>;
     private storeModelPalette;
+    reset(): Promise<void>;
+    orderToPick(orderID: string): Promise<import("mongoose").Document<any, any, PickTask> & PickTask & {
+        _id: import("mongoose").Types.ObjectId;
+    }>;
 }

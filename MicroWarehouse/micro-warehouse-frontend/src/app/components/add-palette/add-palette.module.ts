@@ -6,9 +6,7 @@ import { BrowserModule } from "@angular/platform-browser";
 
 
 @NgModule({
-  declarations: [
-    AddPaletteComponent
-  ],
+  declarations: [],
   imports: [
     CommonModule,
     FormsModule, // Allows us to use input forms.

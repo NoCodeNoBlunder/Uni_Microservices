@@ -1,5 +1,5 @@
-import { HttpClient, HttpResponse, HttpHeaders } from '@angular/common/http';
-import { Component, Injectable, OnInit} from '@angular/core';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http'
+import { Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-store-tasks',
@@ -8,21 +8,18 @@ import { Component, Injectable, OnInit} from '@angular/core';
 })
 export class StoreTasksComponent implements OnInit {
 
-  constructor(private  http: HttpClient) { };
+  constructor(private http: HttpClient) { };
 
-  public palettes: any[] = [ ]; // Here the frontend stores all palettes.
+  public palettes: any = [ ];
 
-  storeTaskString = "Hello Students"
+  storeTaskString = "Hello Student"
 
-  // answer: any = { };
+  //answer : any = { };
 
   ngOnInit() {
-    this.http
-      .get<any>('http://localhost:3000/query/palettes')
+    this.http.get<any>('http://localhost:3000/query/palettes')
       .subscribe(
-        // If it succeeds do this
         answer => this.handleQueryResponse(answer),
-        // If there is an error do this.
         error => this.storeTaskString = JSON.stringify(error, null, 3)
       );
   }
@@ -36,4 +33,3 @@ export class StoreTasksComponent implements OnInit {
     console.log(this.storeTaskString)
   }
 }
-

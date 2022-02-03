@@ -1,0 +1,36 @@
+import { Component, OnInit } from '@angular/core';
+import { HttpClient } from "@angular/common/http";
+// TODO need a different location for these schemas they are used by both front and backend.
+
+
+@Component({
+  selector: 'app-pick-tasks',
+  templateUrl: './pick-tasks.component.html',
+  styleUrls: ['./pick-tasks.component.scss']
+})
+export class PickTasksComponent implements OnInit {
+
+  constructor(private http: HttpClient) { }
+
+  // public pickTasks: any[] = [{code: "123", product: "test", locations: ["kassel"], address: "Unter der Brücke", state: "ordered"}];
+  public pickTasks: any[] = []
+  debugString = ""
+
+  ngOnInit(): void {
+    // Get request Query to get picktasks via app.controller in warehouse backend.
+    this.http.get<any>('http://localhost:3000/query/OrdersToPick')
+      .subscribe(
+        answer => this.handleQueryResponse(answer),
+        error => this.debugString = JSON.stringify(error, null, 3)
+      );
+  }
+
+  handleQueryResponse(answer: any) {
+    console.log('there is some date')
+    for (const event of answer) {
+      this.pickTasks.push(event);
+    }
+    this.debugString = `/query/palettes response contains ${this.pickTasks.length} palettes`
+    console.log(this.debugString)
+  }
+}

@@ -1,15 +1,15 @@
 /* eslint-disable prettier/prettier */
 
-import { Injectable, OnModuleInit } from '@nestjs/common';
-import { BuildEvent } from './build-event.schema';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { MSProduct } from "./product.schema";
-import { Order } from "./order.schema";
-import { Customer } from "./customer.schema";
-import { SetPriceDto } from "../../../common/SetPriceDto";
-import { PlaceOrderDto } from "../../../common/PlaceOrderDto";
-import { HttpService } from "@nestjs/axios";
+import {Injectable, OnModuleInit} from '@nestjs/common';
+import {BuildEvent} from './build-event.schema';
+import {InjectModel} from '@nestjs/mongoose';
+import {Model} from 'mongoose';
+import {MSProduct} from "./product.schema";
+import {Order} from "./order.schema";
+import {Customer} from "./customer.schema";
+import {SetPriceDto} from "../../../common/SetPriceDto";
+import {PlaceOrderDto} from "../../../common/PlaceOrderDto";
+import {HttpService} from "@nestjs/axios";
 import Subscription from "./subscription";
 
 
@@ -36,12 +36,13 @@ export class BuilderService implements OnModuleInit {
    */
   async storeEvent(event: BuildEvent) {
     // Ensures there is at least a placeholder. When i.e. addOffer is called before ProductStored.
+    console.log("[builder.service] storeEvent called with eventtype: " + event.eventType)
 
     const placeholder = await this.buildEventModel.findOneAndUpdate(
         { blockId: event.blockId },
         { blockId: event.blockId, $setOnInsert: {time: ''}}, // time is required in build-event.schema.ts
         { upsert: true, new: true }).exec();
-    console.log('builder service storeEvent line \n' + JSON.stringify(placeholder, null, 3));
+    // console.log('[builderservice] storeEvent with placeholder event:\n' + JSON.stringify(placeholder, null, 3));
 
     const newEvent = await this.buildEventModel.findOneAndUpdate(
         { blockId: event.blockId, time: {$lt: event.time }}, // Only selects items where the value of field is lt specified value. Notice upsert defaults to false.
@@ -53,7 +54,7 @@ export class BuilderService implements OnModuleInit {
           payload: event.payload,
         },
         { new: true }).exec();
-    console.log('builder service storeEvent line \n' + JSON.stringify(newEvent, null, 3));
+    console.log('[builderservice] storeEvent with event:\n' + JSON.stringify(placeholder, null, 3));
 
     return newEvent != null;
   }
@@ -70,7 +71,7 @@ export class BuilderService implements OnModuleInit {
           { product: newProductData.product },
           newProductData,
           { upsert: true, new: true }).exec();
-      console.log('BuilderService.storeProduct storeProduct: \n' + JSON.stringify(newProduct, null, 3),
+      console.log('[builder.service] call storeProduct with:\n' + JSON.stringify(newProduct, null, 3),
       );
       return newProduct;
     } catch (error) {
@@ -82,6 +83,8 @@ export class BuilderService implements OnModuleInit {
   }
 
   async handleProductStored(event: BuildEvent) {
+    console.log("[builder.service] handleProductStored with event: " + JSON.stringify(event, null, 3));
+
     let newProduct = null;
     //store a build event
     const storeSuccess = await this.storeEvent(event);
@@ -92,6 +95,7 @@ export class BuilderService implements OnModuleInit {
         product: event.blockId,
         amount: newAmount,
         amountTime: event.time,
+        tag: "productStored"
       };
       newProduct = await this.storeProduct(productPatch);
     }
@@ -132,6 +136,7 @@ export class BuilderService implements OnModuleInit {
     await this.orderModel.deleteMany();
     await this.customersModel.deleteMany();
 
+    // Dummy
     await this.storeProduct({
       product: 'jeans',
       amount: 10,
@@ -188,17 +193,19 @@ export class BuilderService implements OnModuleInit {
 
   async handlePlaceOrder(event: BuildEvent) {
     // store a build event
+    console.log("[builder.service] handlePlaceOrder called with event: " + JSON.stringify(event, null, 3))
     const storeSuccess = await this.storeEvent(event);
     let newOrder = null;
 
     if (storeSuccess) {
+      console.log("[builder.service] Stored successfully event: " + JSON.stringify(event, null, 3))
       // store an order object
       try {
         newOrder = await this.orderModel.findOneAndUpdate(
             {code: event.payload.code},
             event.payload,
             {upsert: true, new: true}).exec();
-            console.log('BuilderService.handlePlaceOrder \n' + JSON.stringify(newOrder, null, 3));
+            console.log('[builder.service] handlePlaceOrder\n' + JSON.stringify(newOrder, null, 3));
 
         // and upsert customer
         const newCustomer = await this.customersModel.findOneAndUpdate(
@@ -208,6 +215,7 @@ export class BuilderService implements OnModuleInit {
               lastAddress: event.payload.address,
             },
             {upsert: true, new: true}).exec();
+        console.log("[builder.service] added new customer to customersModel DB with: " + JSON.stringify(newCustomer, null, 3))
 
         const newAmount = await this.computeNewProductAmount(event.payload.product);
         await this.productsModel.findOneAndUpdate(
@@ -278,17 +286,17 @@ export class BuilderService implements OnModuleInit {
   }
 
   async handleSubscription(subscription: Subscription) {
+    console.log("Shop Builder.service handleSubscription with: " + subscription.subscriberUrl)
     if (!this.subscriberUrls.includes(subscription.subscriberUrl)) {
       this.subscriberUrls.push(subscription.subscriberUrl);
     }
 
-    const eventList = await this.buildEventModel
+    return await this.buildEventModel
         .find({
           eventType: 'productOrdered',
-          time: { $gt: subscription.lastEventTime },
+          time: {$gt: subscription.lastEventTime},
         })
         .exec();
-    return eventList;
   }
 
   async placeOrder(params: PlaceOrderDto) {

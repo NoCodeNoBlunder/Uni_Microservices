@@ -13,11 +13,15 @@ export class AppService {
    * Handled the event that is coming in. Demultiplexing of event types.
    */
   async handleEvent(event: BuildEvent) {
+    console.log(
+      '[app.service] handleEvent called with ' + JSON.stringify(event, null, 3),
+    );
     if (event.eventType === 'productStored') {
       return await this.modelBuilderService.handleProductStored(event);
     } else if (event.eventType === 'addOffer') {
       return await this.modelBuilderService.handleAddOffer(event);
     } else if (event.eventType === 'placeOrder') {
+      console.log('[app.service] handleEvent called with placeOrder event');
       return await this.modelBuilderService.handlePlaceOrder(event);
     } else if (event.eventType === 'orderPicked') {
       return await this.modelBuilderService.handleOrderPicked(event);
@@ -55,7 +59,7 @@ export class AppService {
 
   async placeOrder(params: PlaceOrderDto) {
     await this.modelBuilderService.placeOrder(params);
-    return 200; // INFO why 200 here?
+    return 200; // 200 indicates that it was successful.
   }
 
   async handleSubscription(subscription: Subscription) {

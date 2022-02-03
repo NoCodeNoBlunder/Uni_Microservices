@@ -32,8 +32,12 @@ let BuilderService = BuilderService_1 = class BuilderService {
     }
     getByTag(tag) {
         console.log('getByTag called with ' + tag);
-        const list = this.buildEventModel.find({ tags: tag }).exec();
-        return list;
+        return this.buildEventModel.find({ tags: tag }).exec();
+    }
+    async getOrdersToPick() {
+        const c = this.pickTaskModel.find({}).exec();
+        console.log('Builder Service WH BE: ' + JSON.stringify(c, null, 3));
+        return c;
     }
     async store(event) {
         const placeholder = await this.buildEventModel
@@ -44,8 +48,10 @@ let BuilderService = BuilderService_1 = class BuilderService {
             .exec();
         return newEvent != null;
     }
-    clear() {
-        return this.buildEventModel.remove();
+    async clear() {
+        await this.paletteModel.deleteMany();
+        await this.buildEventModel.deleteMany();
+        await this.pickTaskModel.deleteMany();
     }
     async storePalette(palette) {
         palette.amount = Number(palette.amount);
@@ -82,6 +88,7 @@ let BuilderService = BuilderService_1 = class BuilderService {
         return palette;
     }
     async handleSubscription(subscription) {
+        console.log('WAREHOUSE handleSubscription with: ' + subscription.subscriberUrl);
         if (!this.subScriberUrls.includes(subscription.subscriberUrl)) {
             this.subScriberUrls.push(subscription.subscriberUrl);
         }
@@ -122,6 +129,8 @@ let BuilderService = BuilderService_1 = class BuilderService {
         }
     }
     async handleProductOrdered(event) {
+        console.log('WE builder.service ProductOrdred() is called with event:' +
+            JSON.stringify(event, null, 3));
         const storeSuccess = await this.store(event);
         if (storeSuccess) {
             const params = event.payload;
@@ -156,9 +165,9 @@ let BuilderService = BuilderService_1 = class BuilderService {
             .exec();
         this.logger.log(`handlePickDone new pal \n${JSON.stringify(pal, null, 3)}`);
         const pick = await this.pickTaskModel
-            .findOneAndUpdate({ code: params.taskCode }, {
+            .findOneAndUpdate({ code: params.code }, {
             palette: pal.barcode,
-            state: 'shipping',
+            state: params.state,
         }, { new: true })
             .exec();
         const event = {
@@ -178,6 +187,15 @@ let BuilderService = BuilderService_1 = class BuilderService {
         await this.paletteModel
             .findOneAndUpdate({ barcode: palette.barcode }, palette, { upsert: true })
             .exec();
+    }
+    async reset() {
+        await this.clear();
+    }
+    async orderToPick(orderID) {
+        console.log('orderToPick called with ID:' + orderID);
+        const c = await this.pickTaskModel.findOne({ code: orderID }).exec();
+        console.log('Result', JSON.stringify(c, null, 3));
+        return c;
     }
 };
 BuilderService = BuilderService_1 = __decorate([

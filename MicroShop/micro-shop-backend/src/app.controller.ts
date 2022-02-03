@@ -1,15 +1,23 @@
-// Shop Backed on port 3100
+import {
+  Body,
+  Controller,
+  Get,
+  OnModuleInit,
+  Param,
+  Post,
+} from '@nestjs/common';
+import { AppService } from './app.service';
+import { BuildEvent } from './modules/builder/build-event.schema';
+import { HttpService } from '@nestjs/axios';
 
-import {Body, Controller, Get, OnModuleInit, Param, Post,} from '@nestjs/common';
-import {AppService} from './app.service';
-import {BuildEvent} from './modules/builder/build-event.schema';
-import {HttpService} from '@nestjs/axios';
-import {SetPriceDto} from '../common/SetPriceDto';
-import {PlaceOrderDto} from '../common/PlaceOrderDto';
 import Subscription from './modules/builder/subscription';
+import { SetPriceDto } from '../common/SetPriceDto';
+import { PlaceOrderDto } from '../common/PlaceOrderDto';
 
 @Controller()
 export class AppController implements OnModuleInit {
+  // publishers: any[] = [];
+
   constructor(
     private httpService: HttpService,
     private readonly appService: AppService,
@@ -17,17 +25,20 @@ export class AppController implements OnModuleInit {
 
   onModuleInit() {
     //subscribe at warehouse
-    console.log('Micro Shop started');
     this.subscribeAtWarehouse(false);
   }
 
-  private subscribeAtWarehouse(isSubscribed: boolean) {
-    // Subscribe warehouse to shop.
+  private subscribeAtWarehouse(suc: boolean) {
+    // if (this.publishers.length > 0) {
+    //   return;
+    // }
+
+    // this.publishers.push('http://localhost:3000');
     this.httpService
       .post('http://localhost:3000/subscribe', {
         subscriberUrl: 'http://localhost:3100/event',
         lastEventTime: '0',
-        success: isSubscribed,
+        success: suc,
       })
       .subscribe(
         async (response) => {
@@ -44,7 +55,7 @@ export class AppController implements OnModuleInit {
               );
               await this.appService.handleEvent(event);
             }
-            console.log('Subscription from Shop to Warehouse succeeded.');
+            console.log('Shop subscribed to Warehouse');
           } catch (error) {
             console.log(
               'AppController onModuleInit subscribe handleEvent error' +
@@ -60,43 +71,7 @@ export class AppController implements OnModuleInit {
       );
   }
 
-  @Post('event')
-  async postEvent(@Body() event: BuildEvent) {
-    try {
-      console.log(
-        'MicroShop app controller postEvent got \n' +
-          JSON.stringify(event, null, 3),
-      );
-      return await this.appService.handleEvent(event);
-    } catch (error) {
-      return error;
-    }
-  }
-
-  @Post('cmd/setPrice')
-  async postCommand(@Body() params: SetPriceDto) {
-    console.log('SETPRICE POST REQUEST');
-    console.log(JSON.stringify(params, null, 3));
-
-    try {
-      //this.logger.log(`\ngot command ${JSON.stringify(command, null, 3)}`)
-      return await this.appService.setPrice(params);
-    } catch (error) {
-      console.log('Error?');
-      return error;
-    }
-  }
-
-  // INFO PRESENT
-  @Post('cmd/placeOrder')
-  async postPlaceOrder(@Body() params: PlaceOrderDto) {
-    try {
-      return await this.appService.placeOrder(params);
-    } catch (error) {
-      return error;
-    }
-  }
-
+  // Interface to let warehouse subscrube at shop
   @Post('subscribe')
   async postSubscribe(@Body() subscription: Subscription) {
     try {
@@ -104,7 +79,7 @@ export class AppController implements OnModuleInit {
         '\npostSubscribe got subscription ${JSON.stringify(subscription, null, 3)}',
       );
       const c = await this.appService.handleSubscription(subscription);
-      if (!subscription.isFirst) {
+      if (!subscription.success) {
         this.subscribeAtWarehouse(true);
       }
       return c;
@@ -113,11 +88,44 @@ export class AppController implements OnModuleInit {
     }
   }
 
+  // Warehouse notifies shop through this interface.
+  @Post('event')
+  async postEvent(@Body() event: BuildEvent) {
+    try {
+      console.log(
+        '[app.controller] URL post request with event: \n' +
+          JSON.stringify(event, null, 3),
+      );
+      return await this.appService.handleEvent(event);
+    } catch (error) {
+      return error;
+    }
+  }
+
   // http://localhost:3000/query/palettes
   @Get('query/:key')
   async getQuery(@Param('key') key: string): Promise<any> {
-    const result = await this.appService.getQuery(key);
-    return result;
+    return await this.appService.getQuery(key);
+  }
+
+  @Post('cmd/placeOrder')
+  async postPlaceOrder(@Body() params: PlaceOrderDto) {
+    try {
+      //this.logger.log('\ngot command ${JSON.stringify(command, null, 3)}')
+      return await this.appService.placeOrder(params);
+    } catch (error) {
+      return error;
+    }
+  }
+
+  @Post('cmd/setPrice')
+  async postCommand(@Body() params: SetPriceDto) {
+    try {
+      //this.logger.log(`\ngot command ${JSON.stringify(command, null, 3)}`)
+      return await this.appService.setPrice(params);
+    } catch (error) {
+      return error;
+    }
   }
 
   @Get('reset')

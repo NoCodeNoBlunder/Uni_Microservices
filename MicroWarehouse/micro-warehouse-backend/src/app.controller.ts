@@ -29,7 +29,7 @@ export class AppController implements OnModuleInit {
 
   onModuleInit() {
     //subscribe at warehouse
-    console.log('Micro Shop started');
+    console.log('Warehouse started');
     this.subscribeAtShop(false);
   }
 
@@ -45,11 +45,14 @@ export class AppController implements OnModuleInit {
           try {
             const eventList: any[] = response.data;
             console.log(
-              'AppController onModuleInit subscribe list' +
+              'AppController onModuleInit subscribe list: ' +
                 JSON.stringify(eventList, null, 3),
             );
             for (const event of eventList) {
-              //console.log('AppController onModuleInit subscribe handle' + JSON.stringify(event, null, 3));
+              console.log(
+                'AppController onModuleInit subscribe handle' +
+                  JSON.stringify(event, null, 3),
+              );
               await this.appService.handleEvent(event);
             }
             console.log('Subscription from Warehouse to Shop succeeded.');
@@ -66,6 +69,34 @@ export class AppController implements OnModuleInit {
           );
         },
       );
+  }
+
+  // Interface to let shop subscribe at warehouse.
+  @Post('subscribe')
+  async postSubscribe(@Body() subscription: Subscription) {
+    try {
+      if (subscription.success) {
+        this.subscribeAtShop(true);
+      }
+      return await this.appService.handleSubscription(subscription);
+    } catch (error) {
+      return error;
+    }
+  }
+
+  // This is what the shop Publishes to.
+  @Post('event')
+  async postEvent(@Body() event: BuildEvent) {
+    try {
+      return await this.appService.handleEvent(event);
+    } catch (error) {
+      return error;
+    }
+  }
+
+  @Get('event')
+  async getEvent(@Param('product') product: string): Promise<any> {
+    return await this.appService.getEvent(product);
   }
 
   /**
@@ -96,40 +127,32 @@ export class AppController implements OnModuleInit {
     }
   }
 
-  @Post('subscribe')
-  async postSubscribe(@Body() subscription: Subscription) {
-    try {
-      if (subscription.isFirst) {
-        this.subscribeAtShop(true);
-      }
-      return await this.appService.handleSubscription(subscription);
-    } catch (error) {
-      return error;
-    }
-  }
-
-  // TODO what is @Body doing?
-  /**
-   * This is the place that the shop publishes to.
-   * @param event publishing event.
-   */
-  @Post('event')
-  async postEvent(@Body() event: BuildEvent) {
-    try {
-      return await this.appService.handleEvent(event);
-    } catch (error) {
-      return error;
-    }
-  }
-
   @Post('cmd/pickDone')
   async postPickDone(@Body() params: any) {
+    console.log('[app.controller] postPickDone called.');
+
     try {
       this.logger.log(`\npostPickDone got ${JSON.stringify(params, null, 3)}`);
       return await this.appService.handlePickDone(params);
     } catch (error) {
       return error;
     }
+  }
+
+  // // how to avoid using any?
+  // @Post('cmd/setStatus')
+  // async postSetOrderStatus(@Body() params: any) {
+  //   try {
+  //     return await this.appService.setOrderStatus(params);
+  //   } catch (error) {
+  //     console.log('[Appcontroller] cmd/setStatus error.');
+  //     return error;
+  //   }
+  // }
+
+  @Get('reset')
+  async getReset() {
+    return await this.appService.getReset();
   }
 
   /**

@@ -8,21 +8,23 @@
 
     <div class="row d-flex justify-content-center my-2">
       <div class="col d-flex justify-content-center">
-        <input id="name" type="text" placeholder="product name?" formControlName="productName"
-               [style.color]="!formGroup.value.productName?'black':null">
+        <!--<input id="name" type="text" placeholder="product name?" formControlName="productName"-->
+        <!--       [style.color]="!formGroup.value.productName?'black':null">-->
+        <input id="name" type="text" placeholder="product name?" formControlName="productName">
       </div>
     </div>
 
     <div *ngIf="formGroup.get('productName')?.errors && formGroup.get('productName')?.dirty" class="row d-flex justify-content-center my-2">
       <div class="col d-flex justify-content-center">
-        name should be in jeans, t-shirt
+        name should be in {{validNames}}
       </div>
     </div>
 
     <div class="row d-flex justify-content-center my-2">
       <div class="col d-flex justify-content-center">
-        <input id="price" type="text" placeholder="Price in €" formControlName="productPrice"
-               [style.color]="!formGroup.value.productPrice?'black':null">
+        <!--<input id="price" type="text" placeholder="Price in €" formControlName="productPrice"-->
+        <!--       [style.color]="!formGroup.value.productPrice?'black':null">-->
+        <input id="price" type="text" placeholder="Price in €" formControlName="productPrice">
       </div>
     </div>
 

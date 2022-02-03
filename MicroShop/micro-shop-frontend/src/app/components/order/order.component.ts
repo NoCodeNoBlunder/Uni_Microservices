@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import  { HttpClient } from "@angular/common/http";
 import { ActivatedRoute, Router} from "@angular/router";
 import { ToastService } from "ng-bootstrap-ext";
-import {FormControl, FormGroup, Validators} from "@angular/forms";
+import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { v4 as uuidv4 } from 'uuid';
 
 @Component({
@@ -34,7 +34,7 @@ export class OrderComponent implements OnInit {
     this.route.params.subscribe(params => {
       this.product = params["product"]
       // TODO HA change toISOString with uuid HOmework Min: 49:47!
-      // uuid generates id.
+      // uuid generates id
       // TODO TImestmamp instead of totally random id.
       this.formGroup.get('order')?.setValue(uuidv4())
       this.formGroup.get('product')?.setValue(this.product)

@@ -5,7 +5,7 @@ import { BuilderService } from './builder.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { BuildEventSchema } from './build-event.schema';
 import { PaletteSchema } from './palette.schema';
-import { PickTaskSchema } from "./pick-task.schema";
+import { PickTaskSchema } from './pick-task.schema';
 import { HttpModule } from '@nestjs/axios';
 
 @Module({
