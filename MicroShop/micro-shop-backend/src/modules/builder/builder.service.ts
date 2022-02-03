@@ -135,26 +135,6 @@ export class BuilderService implements OnModuleInit {
     // TODO commnet these out?
     await this.orderModel.deleteMany();
     await this.customersModel.deleteMany();
-
-    // Dummy
-    await this.storeProduct({
-      product: 'jeans',
-      amount: 10,
-      amountTime: '12:00',
-      price: 0.0,
-    })
-    await this.storeProduct({
-      product: 'tshirt',
-      amount: 11,
-      amountTime: '12:01',
-      price: 0.0,
-    })
-    await this.storeProduct({
-      product: 'socks',
-      amount: 12,
-      amountTime: '12:02',
-      price: 0.0,
-    })
   }
 
   async reset() {
@@ -313,15 +293,14 @@ export class BuilderService implements OnModuleInit {
         { upsert:true, new: true}).exec()
     console.log(`placeOrder stored: \n ${JSON.stringify(result, null, 3)}`);
 
-    // TODO muss das hier weg? Albter hatte es nicht mehr 37:13
-    // await this.customersModel.findOneAndUpdate(
-    //     { name: params.customer },
-    //     {
-    //       name: params.customer,
-    //       lastAddress: params.address,
-    //     },
-    //     { upsert: true, new: true }
-    // ).exec()
+    await this.customersModel.findOneAndUpdate(
+        { name: params.customer },
+        {
+          name: params.customer,
+          lastAddress: params.address,
+        },
+        { upsert: true, new: true }
+    ).exec()
 
     const event = {
       blockId: params.order,

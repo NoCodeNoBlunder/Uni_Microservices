@@ -198,11 +198,14 @@ export class BuilderService implements OnModuleInit {
    */
   async handleProductOrdered(event: BuildEvent) {
     console.log(
-      'WE builder.service ProductOrdred() is called with event:' +
+      '[builder.service] handleProductOrdered is called with event:' +
         JSON.stringify(event, null, 3),
     );
     const storeSuccess = await this.store(event);
     if (storeSuccess) {
+      console.log(
+        '[builder.service] in handleProductOrdered event was stored successfully!',
+      );
       const params = event.payload;
       const productPalettes = await this.paletteModel
         .find({ product: params.product })

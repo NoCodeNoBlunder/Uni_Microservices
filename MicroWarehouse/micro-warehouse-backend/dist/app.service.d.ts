@@ -7,6 +7,12 @@ export declare class AppService {
     private readonly modelBuilderService;
     constructor(modelBuilderService: BuilderService);
     getQuery(key: string): Promise<any>;
+    getEvent(event: string): Promise<{
+        event: string;
+        result: (import("mongoose").Document<any, any, BuildEvent> & BuildEvent & {
+            _id: import("mongoose").Types.ObjectId;
+        })[];
+    }>;
     handleCommand(command: Command): Promise<string | Command>;
     handlePickDone(params: any): Promise<number>;
     handleEvent(event: BuildEvent): Promise<number | {
@@ -15,12 +21,6 @@ export declare class AppService {
     handleSubscription(subscription: Subscription): Promise<(import("mongoose").Document<any, any, BuildEvent> & BuildEvent & {
         _id: import("mongoose").Types.ObjectId;
     })[]>;
-    getHello(): string;
-    getEvent(event: string): Promise<{
-        event: string;
-        result: (import("mongoose").Document<any, any, BuildEvent> & BuildEvent & {
-            _id: import("mongoose").Types.ObjectId;
-        })[];
-    }>;
     getReset(): Promise<string>;
+    getHello(): string;
 }

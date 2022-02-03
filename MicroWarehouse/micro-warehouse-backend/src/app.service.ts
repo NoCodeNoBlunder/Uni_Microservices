@@ -9,6 +9,7 @@ import { PickTask } from './modules/builder/pick-task.schema';
 export class AppService {
   constructor(private readonly modelBuilderService: BuilderService) {}
 
+  // region Queries
   async getQuery(key: string): Promise<any> {
     if (key === 'OrdersToPick') {
       const c = await this.modelBuilderService.getOrdersToPick();
@@ -25,6 +26,15 @@ export class AppService {
       result: list,
     };
   }
+
+  async getEvent(event: string) {
+    const list = await this.modelBuilderService.getByTag(event);
+    return {
+      event: event,
+      result: list,
+    };
+  }
+  // endregion
 
   async handleCommand(command: Command) {
     //console.log(`AppService.handleCommand got again ${JSON.strongify(command, null, 3)}`);
@@ -58,6 +68,10 @@ export class AppService {
   */
 
   async handleEvent(event: BuildEvent) {
+    console.log(
+      '[app.service] handleEvent called with event: ' +
+        JSON.stringify(event, null, 3),
+    );
     if (event.eventType === 'productOrdered') {
       return await this.modelBuilderService.handleProductOrdered(event);
     }
@@ -70,18 +84,6 @@ export class AppService {
     return await this.modelBuilderService.handleSubscription(subscription);
   }
 
-  getHello(): string {
-    return 'Hello Course!';
-  }
-
-  async getEvent(event: string) {
-    const list = await this.modelBuilderService.getByTag(event);
-    return {
-      event: event,
-      result: list,
-    };
-  }
-
   async getReset() {
     {
       await this.modelBuilderService.reset();
@@ -89,8 +91,7 @@ export class AppService {
     }
   }
 
-  // async setOrderStatus(params: PickTask) {
-  //   await this.modelBuilderService.setOrderStatus(params);
-  //   return 200;
-  // }
+  getHello(): string {
+    return 'Hello Course!';
+  }
 }

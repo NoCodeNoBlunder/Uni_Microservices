@@ -88,7 +88,7 @@ export class AppController implements OnModuleInit {
     }
   }
 
-  // Warehouse notifies shop through this interface.
+  // This is what the Warehouse published to.
   @Post('event')
   async postEvent(@Body() event: BuildEvent) {
     try {

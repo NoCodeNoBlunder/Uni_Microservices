@@ -32,6 +32,13 @@ let AppService = class AppService {
             result: list,
         };
     }
+    async getEvent(event) {
+        const list = await this.modelBuilderService.getByTag(event);
+        return {
+            event: event,
+            result: list,
+        };
+    }
     async handleCommand(command) {
         if (command.opCode === 'storePalette') {
             await this.modelBuilderService.storePalette(command.parameters);
@@ -46,6 +53,8 @@ let AppService = class AppService {
         return 200;
     }
     async handleEvent(event) {
+        console.log('[app.service] handleEvent called with event: ' +
+            JSON.stringify(event, null, 3));
         if (event.eventType === 'productOrdered') {
             return await this.modelBuilderService.handleProductOrdered(event);
         }
@@ -56,21 +65,14 @@ let AppService = class AppService {
     async handleSubscription(subscription) {
         return await this.modelBuilderService.handleSubscription(subscription);
     }
-    getHello() {
-        return 'Hello Course!';
-    }
-    async getEvent(event) {
-        const list = await this.modelBuilderService.getByTag(event);
-        return {
-            event: event,
-            result: list,
-        };
-    }
     async getReset() {
         {
             await this.modelBuilderService.reset();
             return 'The Warehouse database was cleared.';
         }
+    }
+    getHello() {
+        return 'Hello Course!';
     }
 };
 AppService = __decorate([
