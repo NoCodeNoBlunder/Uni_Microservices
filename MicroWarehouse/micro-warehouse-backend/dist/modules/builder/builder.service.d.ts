@@ -10,7 +10,7 @@ export declare class BuilderService implements OnModuleInit {
     private buildEventModel;
     private pickTaskModel;
     private paletteModel;
-    subScriberUrls: string[];
+    subscriberUrls: string[];
     logger: Logger;
     constructor(httpService: HttpService, buildEventModel: Model<BuildEvent>, pickTaskModel: Model<PickTask>, paletteModel: Model<Palette>);
     onModuleInit(): Promise<void>;
@@ -20,8 +20,10 @@ export declare class BuilderService implements OnModuleInit {
     getOrdersToPick(): Promise<(import("mongoose").Document<any, any, PickTask> & PickTask & {
         _id: import("mongoose").Types.ObjectId;
     })[]>;
+    orderToPick(orderID: string): Promise<import("mongoose").Document<any, any, PickTask> & PickTask & {
+        _id: import("mongoose").Types.ObjectId;
+    }>;
     store(event: BuildEvent): Promise<boolean>;
-    clear(): Promise<void>;
     storePalette(palette: any): Promise<any>;
     handleSubscription(subscription: subscription): Promise<(import("mongoose").Document<any, any, BuildEvent> & BuildEvent & {
         _id: import("mongoose").Types.ObjectId;
@@ -31,8 +33,6 @@ export declare class BuilderService implements OnModuleInit {
     handleProductOrdered(event: BuildEvent): Promise<number>;
     handlePickDone(params: any): Promise<void>;
     private storeModelPalette;
+    clear(): Promise<void>;
     reset(): Promise<void>;
-    orderToPick(orderID: string): Promise<import("mongoose").Document<any, any, PickTask> & PickTask & {
-        _id: import("mongoose").Types.ObjectId;
-    }>;
 }

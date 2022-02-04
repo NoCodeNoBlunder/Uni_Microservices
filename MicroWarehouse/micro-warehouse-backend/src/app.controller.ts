@@ -28,24 +28,24 @@ export class AppController implements OnModuleInit {
   ) {}
 
   onModuleInit() {
-    //subscribe at warehouse
-    console.log('Warehouse started');
+    console.log('[app.controller] Warehouse started');
     this.subscribeAtShop(false);
   }
 
+  // region Publisher Subscriber
   private subscribeAtShop(isSubscribed: boolean) {
     this.httpService
       .post('http://localhost:3100/subscribe', {
         subscriberUrl: 'http://localhost:3000/event',
         lastEventTime: '0',
-        success: isSubscribed,
+        isReturnSubscription: isSubscribed,
       })
       .subscribe(
         async (response) => {
           try {
             const eventList: any[] = response.data;
             console.log(
-              'AppController onModuleInit subscribe list: ' +
+              '[app.controller] subscrieAtShop Subscribers: ' +
                 JSON.stringify(eventList, null, 3),
             );
             for (const event of eventList) {
@@ -65,8 +65,9 @@ export class AppController implements OnModuleInit {
         },
         (error) => {
           console.log(
-            'AppController onModuleInit error' + JSON.stringify(error, null, 3),
+            '[app.controller] Cannot subscribe at shop. Shop might not be running.',
           );
+          // console.log(JSON.stringify(error, null, 3));
         },
       );
   }
@@ -75,7 +76,7 @@ export class AppController implements OnModuleInit {
   @Post('subscribe')
   async postSubscribe(@Body() subscription: Subscription) {
     try {
-      if (subscription.success) {
+      if (subscription.isReturnSubscription) {
         this.subscribeAtShop(true);
       }
       return await this.appService.handleSubscription(subscription);
@@ -83,6 +84,7 @@ export class AppController implements OnModuleInit {
       return error;
     }
   }
+  // endregion
 
   // This is what the shop Publishes to.
   @Post('event')
@@ -141,17 +143,6 @@ export class AppController implements OnModuleInit {
       return error;
     }
   }
-
-  // // how to avoid using any?
-  // @Post('cmd/setStatus')
-  // async postSetOrderStatus(@Body() params: any) {
-  //   try {
-  //     return await this.appService.setOrderStatus(params);
-  //   } catch (error) {
-  //     console.log('[Appcontroller] cmd/setStatus error.');
-  //     return error;
-  //   }
-  // }
 
   @Get('reset')
   async getReset() {

@@ -44,7 +44,7 @@ export class OrderComponent implements OnInit {
   /* React to submit Button click. */
   submitOffer() {
     this.debugOut = `Your name is ${this.formGroup.get('customer')?.value}`;
-    const params = {
+    const newOrder = {
       order: this.formGroup.get('order')?.value,
       product: this.formGroup.get('product')?.value,
       customer: this.formGroup.get('customer')?.value,
@@ -52,7 +52,7 @@ export class OrderComponent implements OnInit {
     }
 
 
-    this.http.post<any>("http://localhost:3100/cmd/productOrdered", params).subscribe(
+    this.http.post<any>("http://localhost:3100/cmd/productOrdered", newOrder).subscribe(
       () => {
         // If it works show that it did with toast and navigate to home.
         this.toastService.success("Order", 'order submitted succesfully!');

@@ -23,9 +23,11 @@ describe('Shop Test', () =>
   })
 
   it('Add Offer', () => {
+    cy.wait(1000)
     cy.visit('http://localhost:4400/home')
-    cy.wait(500)
+    // cy.wait(250)
     cy.get("#go-shopping-button").click()
+    cy.wait(1000)
     cy.get('#add-button').click()
     cy.contains('Edit Offer:')
     cy.get('#name').type('skateboard')

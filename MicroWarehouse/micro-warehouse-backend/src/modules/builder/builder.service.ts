@@ -12,8 +12,8 @@ import { PickTask } from './pick-task.schema';
  */
 @Injectable()
 export class BuilderService implements OnModuleInit {
-  subScriberUrls: string[] = [];
-  // TODO is this correct?
+  subscriberUrls: string[] = [];
+
   logger = new Logger(BuilderService.name);
 
   constructor(
@@ -31,6 +31,7 @@ export class BuilderService implements OnModuleInit {
     await this.clear();
   }
 
+  // region Queries
   /**
    * TODO This gets all Objects that have the tag.
    * @param tag
@@ -43,9 +44,21 @@ export class BuilderService implements OnModuleInit {
 
   async getOrdersToPick() {
     const c = this.pickTaskModel.find({}).exec();
-    console.log('Builder Service WH BE: ' + JSON.stringify(c, null, 3));
+    console.log(
+      '[builder.service] getOrdersToPick Query result: ' +
+        JSON.stringify(c, null, 3),
+    );
     return c;
   }
+
+  async orderToPick(orderID: string) {
+    console.log('orderToPick called with ID:' + orderID);
+    const c = await this.pickTaskModel.findOne({ code: orderID }).exec();
+    console.log('Result', JSON.stringify(c, null, 3));
+    return c;
+    // return await this.pickTaskModel.findOne({ code: orderID }).exec();
+  }
+  // endregion
 
   /**
    * Inserts or updates a new event into eventstores collection.
@@ -68,16 +81,6 @@ export class BuilderService implements OnModuleInit {
       )
       .exec();
     return newEvent != null;
-  }
-
-  /**
-   * Clears the the Collection eventstores from the mongoDB.
-   */
-  async clear() {
-    // return this.buildEventModel.remove();
-    await this.paletteModel.deleteMany();
-    await this.buildEventModel.deleteMany();
-    await this.pickTaskModel.deleteMany();
   }
 
   async storePalette(palette: any) {
@@ -127,11 +130,12 @@ export class BuilderService implements OnModuleInit {
   async handleSubscription(subscription: subscription) {
     // store in subscribter list
     console.log(
-      'WAREHOUSE handleSubscription with: ' + subscription.subscriberUrl,
+      '[builder.service] handleSubscription with subscriberUrl: ' +
+        subscription.subscriberUrl,
     );
-    if (!this.subScriberUrls.includes(subscription.subscriberUrl)) {
+    if (!this.subscriberUrls.includes(subscription.subscriberUrl)) {
       // Add the new subscriberUrl is not allready in the array add it.
-      this.subScriberUrls.push(subscription.subscriberUrl);
+      this.subscriberUrls.push(subscription.subscriberUrl);
     }
 
     // publish event after last event
@@ -169,11 +173,11 @@ export class BuilderService implements OnModuleInit {
   // Communicate with shop-backend.
   publish(newEvent: BuildEvent) {
     console.log(
-      'build service publish subsribersUrls:\n' +
-        JSON.stringify(this.subScriberUrls, null, 3),
+      '[builder.service] publish to SubscriberUrls:\n' +
+        JSON.stringify(this.subscriberUrls, null, 3),
     );
-    const oldUrls = this.subScriberUrls;
-    this.subScriberUrls = [];
+    const oldUrls = this.subscriberUrls;
+    this.subscriberUrls = [];
     for (const subscriberUrl of oldUrls) {
       this.httpService.post(subscriberUrl, newEvent).subscribe(
         (response) => {
@@ -181,11 +185,12 @@ export class BuilderService implements OnModuleInit {
             'Warehouse builder service publish post response is \n' +
               JSON.stringify(response.data, null, 3),
           );
-          this.subScriberUrls.push(subscriberUrl);
+          this.subscriberUrls.push(subscriberUrl);
         },
         (error) => {
           console.log(
-            'build service publish error: \n' + JSON.stringify(error, null, 3),
+            '[builder.service] publish error: \n' +
+              JSON.stringify(error, null, 3),
           );
         },
       );
@@ -284,29 +289,21 @@ export class BuilderService implements OnModuleInit {
     // Add location to
   }
 
+
+
+  // region Reset DB
+  /**
+   * Clears the the Collection eventstores from the mongoDB.
+   */
+  async clear() {
+    // return this.buildEventModel.remove();
+    await this.paletteModel.deleteMany();
+    await this.buildEventModel.deleteMany();
+    await this.pickTaskModel.deleteMany();
+  }
+
   async reset() {
     await this.clear();
   }
-
-  async orderToPick(orderID: string) {
-    console.log('orderToPick called with ID:' + orderID);
-    const c = await this.pickTaskModel.findOne({ code: orderID }).exec();
-    console.log('Result', JSON.stringify(c, null, 3));
-    return c;
-    // return await this.pickTaskModel.findOne({ code: orderID }).exec();
-  }
-
-  // async setOrderStatus(params: PickTask) {
-  //   const pickTaskDto = {
-  //     // These remain the same.
-  //     code: params.code,
-  //     product: params.product,
-  //     address: params.address,
-  //     palette: params.palette,
-  //
-  //     // These have to change?
-  //     state:
-  //
-  //   }
-  // }
+  // endregion
 }

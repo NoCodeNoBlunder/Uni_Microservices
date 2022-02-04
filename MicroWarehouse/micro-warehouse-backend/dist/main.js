@@ -6,6 +6,7 @@ async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     app.enableCors();
     await app.listen(3000);
+    console.log('[main.ts] shop backend is running on port 3000');
 }
 bootstrap();
 //# sourceMappingURL=main.js.map

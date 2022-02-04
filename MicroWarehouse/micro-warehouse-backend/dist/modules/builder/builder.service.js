@@ -24,7 +24,7 @@ let BuilderService = BuilderService_1 = class BuilderService {
         this.buildEventModel = buildEventModel;
         this.pickTaskModel = pickTaskModel;
         this.paletteModel = paletteModel;
-        this.subScriberUrls = [];
+        this.subscriberUrls = [];
         this.logger = new common_1.Logger(BuilderService_1.name);
     }
     async onModuleInit() {
@@ -36,7 +36,14 @@ let BuilderService = BuilderService_1 = class BuilderService {
     }
     async getOrdersToPick() {
         const c = this.pickTaskModel.find({}).exec();
-        console.log('Builder Service WH BE: ' + JSON.stringify(c, null, 3));
+        console.log('[builder.service] getOrdersToPick Query result: ' +
+            JSON.stringify(c, null, 3));
+        return c;
+    }
+    async orderToPick(orderID) {
+        console.log('orderToPick called with ID:' + orderID);
+        const c = await this.pickTaskModel.findOne({ code: orderID }).exec();
+        console.log('Result', JSON.stringify(c, null, 3));
         return c;
     }
     async store(event) {
@@ -47,11 +54,6 @@ let BuilderService = BuilderService_1 = class BuilderService {
             .findOneAndUpdate({ blockId: event.blockId, name: { $lt: event.time } }, event, { new: true })
             .exec();
         return newEvent != null;
-    }
-    async clear() {
-        await this.paletteModel.deleteMany();
-        await this.buildEventModel.deleteMany();
-        await this.pickTaskModel.deleteMany();
     }
     async storePalette(palette) {
         palette.amount = Number(palette.amount);
@@ -88,9 +90,10 @@ let BuilderService = BuilderService_1 = class BuilderService {
         return palette;
     }
     async handleSubscription(subscription) {
-        console.log('WAREHOUSE handleSubscription with: ' + subscription.subscriberUrl);
-        if (!this.subScriberUrls.includes(subscription.subscriberUrl)) {
-            this.subScriberUrls.push(subscription.subscriberUrl);
+        console.log('[builder.service] handleSubscription with subscriberUrl: ' +
+            subscription.subscriberUrl);
+        if (!this.subscriberUrls.includes(subscription.subscriberUrl)) {
+            this.subscriberUrls.push(subscription.subscriberUrl);
         }
         const eventList = await this.buildEventModel
             .find({
@@ -114,17 +117,18 @@ let BuilderService = BuilderService_1 = class BuilderService {
         return sum;
     }
     publish(newEvent) {
-        console.log('build service publish subsribersUrls:\n' +
-            JSON.stringify(this.subScriberUrls, null, 3));
-        const oldUrls = this.subScriberUrls;
-        this.subScriberUrls = [];
+        console.log('[builder.service] publish to SubscriberUrls:\n' +
+            JSON.stringify(this.subscriberUrls, null, 3));
+        const oldUrls = this.subscriberUrls;
+        this.subscriberUrls = [];
         for (const subscriberUrl of oldUrls) {
             this.httpService.post(subscriberUrl, newEvent).subscribe((response) => {
                 console.log('Warehouse builder service publish post response is \n' +
                     JSON.stringify(response.data, null, 3));
-                this.subScriberUrls.push(subscriberUrl);
+                this.subscriberUrls.push(subscriberUrl);
             }, (error) => {
-                console.log('build service publish error: \n' + JSON.stringify(error, null, 3));
+                console.log('[builder.service] publish error: \n' +
+                    JSON.stringify(error, null, 3));
             });
         }
     }
@@ -189,14 +193,13 @@ let BuilderService = BuilderService_1 = class BuilderService {
             .findOneAndUpdate({ barcode: palette.barcode }, palette, { upsert: true })
             .exec();
     }
+    async clear() {
+        await this.paletteModel.deleteMany();
+        await this.buildEventModel.deleteMany();
+        await this.pickTaskModel.deleteMany();
+    }
     async reset() {
         await this.clear();
-    }
-    async orderToPick(orderID) {
-        console.log('orderToPick called with ID:' + orderID);
-        const c = await this.pickTaskModel.findOne({ code: orderID }).exec();
-        console.log('Result', JSON.stringify(c, null, 3));
-        return c;
     }
 };
 BuilderService = BuilderService_1 = __decorate([

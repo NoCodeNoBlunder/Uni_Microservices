@@ -44,7 +44,7 @@ export class HomeComponent implements OnInit {
         this.offers.push(product);
       }
     }
-    this.debugString = `number of offers ${this.offers.length}`
+    this.debugString = `Distinct products: ${this.offers.length}`
   }
 
   // Tell the customer how many active orders he has.

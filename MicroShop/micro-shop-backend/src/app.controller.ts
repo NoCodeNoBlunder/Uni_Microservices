@@ -26,20 +26,19 @@ export class AppController implements OnModuleInit {
   }
 
   // region Publisher Subscriber
-  private subscribeAtWarehouse(suc: boolean) {
-    // this.publishers.push('http://localhost:3000');
+  private subscribeAtWarehouse(isReturnSubscriptionVal: boolean) {
     this.httpService
       .post('http://localhost:3000/subscribe', {
         subscriberUrl: 'http://localhost:3100/event',
         lastEventTime: '0',
-        success: suc,
+        isReturnSubscription: isReturnSubscriptionVal,
       })
       .subscribe(
         async (response) => {
           try {
             const eventList: any[] = response.data;
             console.log(
-              'AppController onModuleInit subscribe list' +
+              '[app.controller] subscrieAtWarehouse Subscribers: ' +
                 JSON.stringify(eventList, null, 3),
             );
             for (const event of eventList) {
@@ -49,18 +48,19 @@ export class AppController implements OnModuleInit {
               );
               await this.appService.handleEvent(event);
             }
-            console.log('Shop subscribed to Warehouse');
+            console.log('[app.controller] SHOP subscribed to WAREHOUSE');
           } catch (error) {
             console.log(
-              'AppController onModuleInit subscribe handleEvent error' +
+              '[app.controller] onModuleInit subscribe handleEvent error' +
                 JSON.stringify(error, null, 3),
             );
           }
         },
         (error) => {
           console.log(
-            'AppController onModuleInit error' + JSON.stringify(error, null, 3),
+            '[app.controller] Cannot subscribe at Warehouse. Warehouse might not be running.',
           );
+          // console.log(JSON.stringify(error, null, 3));
         },
       );
   }
@@ -73,7 +73,7 @@ export class AppController implements OnModuleInit {
         '\npostSubscribe got subscription ${JSON.stringify(subscription, null, 3)}',
       );
       const c = await this.appService.handleSubscription(subscription);
-      if (!subscription.success) {
+      if (!subscription.isReturnSubscription) {
         this.subscribeAtWarehouse(true);
       }
       return c;
@@ -83,6 +83,12 @@ export class AppController implements OnModuleInit {
   }
   // endregion
 
+  @Get('query/:key')
+  async getQuery(@Param('key') key: string): Promise<any> {
+    return await this.appService.getQuery(key);
+  }
+
+  // region Posts
   // This is what the Warehouse published to.
   @Post('event')
   async postEvent(@Body() event: BuildEvent) {
@@ -97,14 +103,12 @@ export class AppController implements OnModuleInit {
     }
   }
 
-  // http://localhost:3000/query/palettes
-  @Get('query/:key')
-  async getQuery(@Param('key') key: string): Promise<any> {
-    return await this.appService.getQuery(key);
-  }
-
   @Post('cmd/productOrdered')
   async postPlaceOrder(@Body() params: PlaceOrderDto) {
+    console.log(
+      '[app.controller] postPlaceOrder called with: ' +
+        JSON.stringify(params, null, 3),
+    );
     try {
       //this.logger.log('\ngot command ${JSON.stringify(command, null, 3)}')
       return await this.appService.placeOrder(params);
@@ -122,6 +126,7 @@ export class AppController implements OnModuleInit {
       return error;
     }
   }
+  // endregion
 
   @Get('reset')
   async getReset() {

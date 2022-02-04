@@ -33,10 +33,10 @@ export class AppService {
 
   // Demultipliexing of queries.
   async getQuery(key: string): Promise<any> {
+    console.log('[app.service] getQuery with key: ' + key);
     if (key === 'customers') {
       return await this.modelBuilderService.getCustomers();
     } else if (key === 'products') {
-      console.log('query in app service.');
       return await this.modelBuilderService.getProducts();
     } else if (key.startsWith('product-')) {
       const name = key.substring('product-'.length);

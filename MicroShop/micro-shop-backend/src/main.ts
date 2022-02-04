@@ -10,7 +10,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
   //listen tells webserver to start working
   await app.listen(3100);
-  console.log('shop backend is running on port 3100');
+  console.log('[main.ts] shop backend is running on port 3100');
 }
 //bootstrap starts application
 bootstrap();

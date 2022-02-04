@@ -59,6 +59,51 @@ export class BuilderService implements OnModuleInit {
     return newEvent != null;
   }
 
+  async placeOrder(params: PlaceOrderDto) {
+    const orderDto = {
+      code: params.order,
+      product: params.product,
+      customer: params.customer,
+      address: params.address,
+      state: "order placed",
+    }
+    const result = await this.orderModel.findOneAndUpdate(
+        { code: params.order },
+        orderDto,
+        { upsert:true, new: true}).exec()
+    console.log(`[builder.service] placeOrder result:\n ${JSON.stringify(result, null, 3)}`);
+
+    await this.customersModel.findOneAndUpdate(
+        { name: params.customer },
+        {
+          name: params.customer,
+          lastAddress: params.address,
+        },
+        { upsert: true, new: true }
+    ).exec()
+
+    await this.productsModel.findOneAndUpdate(
+        { product: params.product },
+        {
+          $inc: { amount: -1 },
+        },
+        { new: true }
+    )
+
+    const event = {
+      blockId: params.order,
+      time: new Date().toISOString(),
+      eventType: 'productOrdered',
+      tags: ['products', params.order],
+      payload: orderDto,
+    };
+    await this.storeEvent(event);
+    // Notify the subscriber of this new event.
+
+    console.log('[builder.service] placeOrder publish called with event: ' + JSON.stringify(event, null , 3));
+    await this.publish(event);
+  }
+
   /**
    * stores a new Product if it is not there.
    * Increases the amount it it is already there.
@@ -82,6 +127,7 @@ export class BuilderService implements OnModuleInit {
     }
   }
 
+  // region Handlers
   async handleProductStored(event: BuildEvent) {
     console.log("[builder.service] handleProductStored with event: " + JSON.stringify(event, null, 3));
 
@@ -105,41 +151,6 @@ export class BuilderService implements OnModuleInit {
     return newProduct;
   }
 
-  async computeNewProductAmount(productName) {
-    const lastStoredEvent = await this.buildEventModel.findOne({blockId: productName}).exec();
-    const lastEvent = lastStoredEvent.payload.amount;
-
-    const newOrdersList: any[] = await this.buildEventModel.find(
-        {
-          eventType: 'productOrdered',
-          'payload.product': productName
-        }
-    ).exec();
-
-    const newOrdersNumber = newOrdersList.length;
-    const laterShippingList: any[] = await this.buildEventModel.find(
-        {
-          eventType: 'orderPicked',
-          time: {$gt: lastStoredEvent.time},
-          'payload.product': productName
-        }
-    ).exec();
-    return lastEvent;
-  }
-
-  async clear() {
-    // deleteMany is an async database operation.
-    await this.productsModel.deleteMany();
-    await this.buildEventModel.deleteMany();
-
-    // TODO commnet these out?
-    await this.orderModel.deleteMany();
-    await this.customersModel.deleteMany();
-  }
-
-  async reset() {
-    await this.clear();
-  }
 
   async handleAddOffer(event: BuildEvent) {
     // store a build event
@@ -213,60 +224,8 @@ export class BuilderService implements OnModuleInit {
     }
   }
 
-  /**
-   * Return a list of all customers in db with no condition.
-   */
-  async getCustomers() {
-    return await this.customersModel.find({}).exec();
-  }
-
-  /**
-   * Returns a list of all products in db with no condition.
-   */
-  async getProducts() {
-    return await this.productsModel.find({}).exec();
-  }
-
-  async getProduct(name) {
-    return await this.productsModel.findOne({product: name}).exec();
-  }
-
-  async setPrice(params: SetPriceDto) {
-    // console.log("Builder.service setPrice()");
-    // console.log(JSON.stringify(params, null, 3));
-
-    const test = await this.productsModel
-        .findOneAndUpdate(
-            { product: params.product },
-            { price: `${params.price}` },
-            { new: true },
-        )
-        .exec();
-    console.log("RETURN VALUE:");
-    console.log(JSON.stringify(test, null, 3));
-    return test;
-  }
-
-  // TODO HA 11 mutual subscription.
-  publish (newEvent: BuildEvent) {
-    console.log(`build service publish subscriberUrls: \n` + JSON.stringify(this.subscriberUrls, null, 3));
-    const oldUrls = this.subscriberUrls;
-    this.subscriberUrls = [];
-    // TODO const here?
-    for (const subscriberUrl of oldUrls) {
-      this.httpService.post(subscriberUrl, newEvent).subscribe(
-          (response) => {
-            console.log('Warehouse builder service publish post response is \n' + JSON.stringify(response.data, null, 3))
-            this.subscriberUrls.push(subscriberUrl);
-          },
-          (error) => {
-            console.log(`build service publish error: \n` + JSON.stringify(error, null, 3));
-          });
-    }
-  }
-
   async handleSubscription(subscription: Subscription) {
-    console.log("Shop Builder.service handleSubscription with: " + subscription.subscriberUrl)
+    console.log("[builder.service] handleSubscription with: " + subscription.subscriberUrl)
     if (!this.subscriberUrls.includes(subscription.subscriberUrl)) {
       this.subscriberUrls.push(subscription.subscriberUrl);
     }
@@ -277,48 +236,6 @@ export class BuilderService implements OnModuleInit {
           time: {$gt: subscription.lastEventTime},
         })
         .exec();
-  }
-
-  async placeOrder(params: PlaceOrderDto) {
-    const orderDto = {
-      code: params.order,
-      product: params.product,
-      customer: params.customer,
-      address: params.address,
-      state: "order placed",
-    }
-    const result = await this.orderModel.findOneAndUpdate(
-        { code: params.order },
-        orderDto,
-        { upsert:true, new: true}).exec()
-    console.log(`productOrdered event stored: \n ${JSON.stringify(result, null, 3)}`);
-
-    await this.customersModel.findOneAndUpdate(
-        { name: params.customer },
-        {
-          name: params.customer,
-          lastAddress: params.address,
-        },
-        { upsert: true, new: true }
-    ).exec()
-
-    const event = {
-      blockId: params.order,
-      time: new Date().toISOString(),
-      eventType: 'productOrdered',
-      tags: ['products', params.order],
-      payload: orderDto,
-    };
-    await this.storeEvent(event);
-    // Notify the subscriber of this new event.
-
-    console.log('[builder.service] placeOrder publish called with event: ' + JSON.stringify(event, null , 3));
-    await this.publish(event);
-  }
-
-  // Find and return all the models where to customer attribute is customer.
-  async getOrdersOf(customer: string) {
-    return await this.orderModel.find({customer: customer}).exec();
   }
 
   async handleOrderPicked(event: BuildEvent) {
@@ -345,8 +262,106 @@ export class BuilderService implements OnModuleInit {
         state: order.state,
       },
     }
-
     await this.storeEvent(newEvent);
     return newEvent;
   }
+  // endregion
+
+  // region Queries
+  /**
+   * Return a list of all customers in db with no condition.
+   */
+  async getCustomers() {
+    return await this.customersModel.find({}).exec();
+  }
+
+  /**
+   * Returns a list of all products in db with no condition.
+   */
+  async getProducts() {
+    const c = await this.productsModel.find({}).exec();
+    console.log('[builder.service] getProducts query result is: ' + JSON.stringify(c, null, 3))
+    return c
+  }
+
+  async getProduct(name) {
+    return await this.productsModel.findOne({product: name}).exec();
+  }
+
+  // Find and return all the models where to customer attribute is customer.
+  async getOrdersOf(customer: string) {
+    return await this.orderModel.find({customer: customer}).exec();
+  }
+  // endregion
+
+  async computeNewProductAmount(productName) {
+    const lastStoredEvent = await this.buildEventModel.findOne({blockId: productName}).exec();
+    const lastEvent = lastStoredEvent.payload.amount;
+
+    const newOrdersList: any[] = await this.buildEventModel.find(
+        {
+          eventType: 'productOrdered',
+          'payload.product': productName
+        }
+    ).exec();
+
+    const newOrdersNumber = newOrdersList.length;
+    const laterShippingList: any[] = await this.buildEventModel.find(
+        {
+          eventType: 'orderPicked',
+          time: {$gt: lastStoredEvent.time},
+          'payload.product': productName
+        }
+    ).exec();
+    return lastEvent;
+  }
+
+  async setPrice(params: SetPriceDto) {
+    // console.log("Builder.service setPrice()");
+    // console.log(JSON.stringify(params, null, 3));
+
+    const test = await this.productsModel
+        .findOneAndUpdate(
+            { product: params.product },
+            { price: `${params.price}` },
+            { new: true },
+        )
+        .exec();
+    console.log(JSON.stringify(test, null, 3));
+    return test;
+  }
+
+  // TODO HA 11 mutual subscription.
+  publish (newEvent: BuildEvent) {
+    console.log(
+        '[builder.service] publish to SubscriberUrls:\n' +
+        JSON.stringify(this.subscriberUrls, null, 3),
+    );
+    const oldUrls = this.subscriberUrls;
+    this.subscriberUrls = [];
+    // TODO const here?
+    for (const subscriberUrl of oldUrls) {
+      this.httpService.post(subscriberUrl, newEvent).subscribe(
+          (response) => {
+            console.log('Warehouse builder service publish post response is \n' + JSON.stringify(response.data, null, 3))
+            this.subscriberUrls.push(subscriberUrl);
+          },
+          (error) => {
+            console.log(`build service publish error: \n` + JSON.stringify(error, null, 3));
+          });
+    }
+  }
+
+  // region Clear DB
+  async reset() {
+    await this.clear();
+  }
+
+  async clear() {
+    await this.productsModel.deleteMany();
+    await this.buildEventModel.deleteMany();
+    await this.orderModel.deleteMany();
+    await this.customersModel.deleteMany();
+  }
+  // endregion
 }
