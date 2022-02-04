@@ -1,13 +1,10 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { StoreTasksComponent } from './store-tasks.component';
 import { RouterModule } from "@angular/router";
 
 
 @NgModule({
-  declarations: [
-    StoreTasksComponent
-  ],
+  declarations: [],
     imports: [
         CommonModule,
         RouterModule,

@@ -11,20 +11,23 @@ export class AppService {
 
   // region Queries
   async getQuery(key: string): Promise<any> {
-    if (key === 'OrdersToPick') {
+    console.log('[app.service] getQuery called with key:' + key);
+    if (key === 'paletteStored') {
+      // return await this.modelBuilderService.getPalettes():
+    } else if (key === 'OrdersToPick') {
       const c = await this.modelBuilderService.getOrdersToPick();
       console.log('app.service getQuery' + JSON.stringify(c, null, 3));
       return c;
     } else if (key.startsWith('OrdersToPick_')) {
       const orderID = key.substring('OrdersToPick_'.length);
       return await this.modelBuilderService.orderToPick(orderID);
+    } else {
+      const list = await this.modelBuilderService.getByTag(key);
+      return {
+        key: key,
+        result: list,
+      };
     }
-    // TODO is there other cases missing?
-    const list = await this.modelBuilderService.getByTag(key);
-    return {
-      key: key,
-      result: list,
-    };
   }
 
   async getEvent(event: string) {

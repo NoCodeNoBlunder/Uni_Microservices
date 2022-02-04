@@ -17,7 +17,10 @@ let AppService = class AppService {
         this.modelBuilderService = modelBuilderService;
     }
     async getQuery(key) {
-        if (key === 'OrdersToPick') {
+        console.log('[app.service] getQuery called with key:' + key);
+        if (key === 'paletteStored') {
+        }
+        else if (key === 'OrdersToPick') {
             const c = await this.modelBuilderService.getOrdersToPick();
             console.log('app.service getQuery' + JSON.stringify(c, null, 3));
             return c;
@@ -26,11 +29,13 @@ let AppService = class AppService {
             const orderID = key.substring('OrdersToPick_'.length);
             return await this.modelBuilderService.orderToPick(orderID);
         }
-        const list = await this.modelBuilderService.getByTag(key);
-        return {
-            key: key,
-            result: list,
-        };
+        else {
+            const list = await this.modelBuilderService.getByTag(key);
+            return {
+                key: key,
+                result: list,
+            };
+        }
     }
     async getEvent(event) {
         const list = await this.modelBuilderService.getByTag(event);

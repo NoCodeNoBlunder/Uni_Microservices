@@ -9,6 +9,7 @@
 
       <thead>
         <tr>
+          <th scope="col">Barcode</th>
           <th scope="col">Amount</th>
           <th scope="col">Product</th>
           <th scope="col">Location</th>
@@ -17,6 +18,7 @@
 
         <tbody>
           <tr [id]="pal.barcode" *ngFor="let pal of palettes">
+            <td>{{pal.barcode}}</td>
             <td>{{pal.amount}}</td>
             <td>{{pal.product}}</td>
             <td>{{pal.location}}</td>

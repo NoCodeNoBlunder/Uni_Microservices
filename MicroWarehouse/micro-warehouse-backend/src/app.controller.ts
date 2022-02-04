@@ -118,7 +118,7 @@ export class AppController implements OnModuleInit {
     console.log(`[app.controller] getQuery called with key ${key}`);
     const result = await this.appService.getQuery(key);
     console.log(
-      `appController.getQuery done ${JSON.stringify(result, null, 3)}\n`,
+      `[app.controller] getQuery result: ${JSON.stringify(result, null, 3)}\n`,
     );
     return result;
   }

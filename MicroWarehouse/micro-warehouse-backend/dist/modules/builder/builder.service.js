@@ -165,6 +165,8 @@ let BuilderService = BuilderService_1 = class BuilderService {
         return 200;
     }
     async handlePickDone(params) {
+        console.log('[builder.service] handlePickDone called wtih: ' +
+            JSON.stringify(params, null, 3));
         const pal = await this.paletteModel
             .findOneAndUpdate({ location: params.location }, {
             $inc: { amount: -1 },

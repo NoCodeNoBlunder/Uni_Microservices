@@ -18,6 +18,7 @@ import { AddPaletteComponent }  from "./components/add-palette/add-palette.compo
 import { DeliverOrdersComponent } from "./components/deliver-orders/deliver-orders.component";
 import { PickTasksComponent } from "./components/pick-tasks/pick-tasks.component";
 import { HomeComponent } from "./components/home/home.component";
+import { StoreTasksComponent } from "./components/store-tasks/store-tasks.component";
 // import { ToastModule, ToastService,} from "ng-bootstrap-ext"; // TODO Install Toast in warehouse
 
 @NgModule({
@@ -28,6 +29,7 @@ import { HomeComponent } from "./components/home/home.component";
     AddPaletteComponent,
     DeliverOrdersComponent,
     PickTasksComponent,
+    StoreTasksComponent,
   ],
     imports: [ // Imports these Modules to the top level so the router module can access them.
         BrowserModule,

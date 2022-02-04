@@ -242,6 +242,10 @@ export class BuilderService implements OnModuleInit {
 
   // Updates the palette after a Pick event occured.
   async handlePickDone(params: any) {
+    console.log(
+      '[builder.service] handlePickDone called wtih: ' +
+        JSON.stringify(params, null, 3),
+    );
     // Update palette.
     const pal = await this.paletteModel
       .findOneAndUpdate(
