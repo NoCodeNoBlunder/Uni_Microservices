@@ -20,8 +20,8 @@ export class AppService {
       return await this.modelBuilderService.handleProductStored(event);
     } else if (event.eventType === 'addOffer') {
       return await this.modelBuilderService.handleAddOffer(event);
-    } else if (event.eventType === 'placeOrder') {
-      console.log('[app.service] handleEvent called with placeOrder event');
+    } else if (event.eventType === 'productOrdered') {
+      console.log('[app.service] handleEvent called with productOrdered event');
       return await this.modelBuilderService.handlePlaceOrder(event);
     } else if (event.eventType === 'orderPicked') {
       return await this.modelBuilderService.handleOrderPicked(event);

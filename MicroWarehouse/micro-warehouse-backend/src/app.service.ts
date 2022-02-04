@@ -51,22 +51,6 @@ export class AppService {
     return 200;
   }
 
-  /*
-  async handleEvent(event: BuildEvent) {
-    if (event.eventType === 'productPlaced') {
-      //return await this.modelBuilderService.handleOrderPlaced(event);
-      console.log(
-        'Warehouse app service handle event gets \n' +
-          JSON.stringify(event, null, 3),
-      );
-    } else {
-      return {
-        error: 'shop backend does not know how to handle ' + event.eventType,
-      };
-    }
-  }
-  */
-
   async handleEvent(event: BuildEvent) {
     console.log(
       '[app.service] handleEvent called with event: ' +

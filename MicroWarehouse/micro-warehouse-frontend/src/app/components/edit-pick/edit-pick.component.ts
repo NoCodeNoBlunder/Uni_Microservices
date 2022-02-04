@@ -11,9 +11,8 @@ import { ActivatedRoute, Router } from "@angular/router";
 })
 export class EditPickComponent implements OnInit {
 
-  // validLocations: string[] = []
-  public productID = "no Product"
-  public locations = ""
+  public productID = ''
+  public locations = ''
   public product = ''
   public state = ''
 

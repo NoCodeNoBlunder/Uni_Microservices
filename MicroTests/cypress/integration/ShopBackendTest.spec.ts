@@ -118,7 +118,7 @@ describe('The Shop Backend Test', () => {
 
   it('sends a place order command', () => {
     cy.request('POST', 'http://localhost:3100/event', {
-      eventType: 'placeOrder',
+      eventType: 'productOrdered',
       blockId: 'o1121',
       time: '11:21',
       tags: [],

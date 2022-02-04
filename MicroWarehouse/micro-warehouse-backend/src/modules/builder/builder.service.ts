@@ -270,7 +270,6 @@ export class BuilderService implements OnModuleInit {
         state: pick.state,
       },
     };
-
     const storeSuccess = await this.store(event);
     this.publish(event);
   }
@@ -279,6 +278,10 @@ export class BuilderService implements OnModuleInit {
     await this.paletteModel
       .findOneAndUpdate({ barcode: palette.barcode }, palette, { upsert: true })
       .exec();
+
+    // await this.pickTaskModel
+    //     .findOneAndUpdate({product: palette.product})
+    // Add location to
   }
 
   async reset() {

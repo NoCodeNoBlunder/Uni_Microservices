@@ -6,7 +6,7 @@
 
   <div class="row d-flex justify-content-center my-2">
     <div class="col d-flex justify-content-center">
-      Hello {{customer}} <br>
+      Greetings {{customer}}! <br>
     </div>
   </div>
 
@@ -14,13 +14,7 @@
        *ngFor="let order of orders">
 
     <div class="col-6 d-flex justify-content-center">
-      <label>Your {{order.product}} are in state {{order.state}}</label>
-    </div>
-  </div>
-
-  <div class="row d-flex justify-content-center my-2">
-    <div class="col d-flex justify-content-center">
-      On sale today:
+      <label>Your {{order.product}} is/are in state: <b>{{order.state}}</b></label>
     </div>
   </div>
 

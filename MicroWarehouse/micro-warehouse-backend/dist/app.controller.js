@@ -69,6 +69,8 @@ let AppController = AppController_1 = class AppController {
         }
     }
     async postEvent(event) {
+        console.log('[app.contoller] postEvent called with event: ' +
+            JSON.stringify(event, null, 3));
         try {
             return await this.appService.handleEvent(event);
         }
@@ -80,8 +82,7 @@ let AppController = AppController_1 = class AppController {
         return await this.appService.getEvent(product);
     }
     async getQuery(key) {
-        console.log(`appController.getQuery called with key ${key}`);
-        console.log('KEY ' + key);
+        console.log(`[app.controller] getQuery called with key ${key}`);
         const result = await this.appService.getQuery(key);
         console.log(`appController.getQuery done ${JSON.stringify(result, null, 3)}\n`);
         return result;

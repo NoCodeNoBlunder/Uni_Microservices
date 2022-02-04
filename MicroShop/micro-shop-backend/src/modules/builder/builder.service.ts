@@ -111,7 +111,7 @@ export class BuilderService implements OnModuleInit {
 
     const newOrdersList: any[] = await this.buildEventModel.find(
         {
-          eventType: 'placeOrder',
+          eventType: 'productOrdered',
           'payload.product': productName
         }
     ).exec();
@@ -291,7 +291,7 @@ export class BuilderService implements OnModuleInit {
         { code: params.order },
         orderDto,
         { upsert:true, new: true}).exec()
-    console.log(`placeOrder stored: \n ${JSON.stringify(result, null, 3)}`);
+    console.log(`productOrdered event stored: \n ${JSON.stringify(result, null, 3)}`);
 
     await this.customersModel.findOneAndUpdate(
         { name: params.customer },
@@ -311,7 +311,9 @@ export class BuilderService implements OnModuleInit {
     };
     await this.storeEvent(event);
     // Notify the subscriber of this new event.
-    this.publish(event);
+
+    console.log('[builder.service] placeOrder publish called with event: ' + JSON.stringify(event, null , 3));
+    await this.publish(event);
   }
 
   // Find and return all the models where to customer attribute is customer.

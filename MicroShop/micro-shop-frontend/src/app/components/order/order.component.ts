@@ -52,7 +52,7 @@ export class OrderComponent implements OnInit {
     }
 
 
-    this.http.post<any>("http://localhost:3100/cmd/placeOrder", params).subscribe(
+    this.http.post<any>("http://localhost:3100/cmd/productOrdered", params).subscribe(
       () => {
         // If it works show that it did with toast and navigate to home.
         this.toastService.success("Order", 'order submitted succesfully!');

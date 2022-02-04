@@ -16,23 +16,17 @@ import { PlaceOrderDto } from '../common/PlaceOrderDto';
 
 @Controller()
 export class AppController implements OnModuleInit {
-  // publishers: any[] = [];
-
   constructor(
     private httpService: HttpService,
     private readonly appService: AppService,
   ) {}
 
   onModuleInit() {
-    //subscribe at warehouse
     this.subscribeAtWarehouse(false);
   }
 
+  // region Publisher Subscriber
   private subscribeAtWarehouse(suc: boolean) {
-    // if (this.publishers.length > 0) {
-    //   return;
-    // }
-
     // this.publishers.push('http://localhost:3000');
     this.httpService
       .post('http://localhost:3000/subscribe', {
@@ -87,6 +81,7 @@ export class AppController implements OnModuleInit {
       return error;
     }
   }
+  // endregion
 
   // This is what the Warehouse published to.
   @Post('event')
@@ -108,7 +103,7 @@ export class AppController implements OnModuleInit {
     return await this.appService.getQuery(key);
   }
 
-  @Post('cmd/placeOrder')
+  @Post('cmd/productOrdered')
   async postPlaceOrder(@Body() params: PlaceOrderDto) {
     try {
       //this.logger.log('\ngot command ${JSON.stringify(command, null, 3)}')
