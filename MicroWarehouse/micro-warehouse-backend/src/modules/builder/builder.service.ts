@@ -31,17 +31,18 @@ export class BuilderService implements OnModuleInit {
     await this.clear();
   }
 
+  // TODO do I need awaits here?
   // region Queries
-  /**
-   * TODO This gets all Objects that have the tag.
-   * @param tag
-   */
-  getByTag(tag: string) {
-    console.log('getByTag called with ' + tag);
-    // INFO find is another mongodb query. create and run query.
-    return this.buildEventModel.find({ tags: tag }).exec();
+  async getPalettes() {
+    const c = this.paletteModel.find().exec();
+    console.log(
+      '[builder.service] getPalettes Query result: ' +
+        JSON.stringify(c, null, 3),
+    );
+    return c;
   }
 
+  // TODO dont I need a new here?
   async getOrdersToPick() {
     const c = this.pickTaskModel.find({}).exec();
     console.log(
@@ -57,6 +58,16 @@ export class BuilderService implements OnModuleInit {
     console.log('Result', JSON.stringify(c, null, 3));
     return c;
     // return await this.pickTaskModel.findOne({ code: orderID }).exec();
+  }
+
+  /**
+   * TODO This gets all Objects that have the tag.
+   * @param tag
+   */
+  getByTag(tag: string) {
+    console.log('getByTag called with ' + tag);
+    // INFO find is another mongodb query. create and run query.
+    return this.buildEventModel.find({ tags: tag }).exec();
   }
   // endregion
 
@@ -295,8 +306,6 @@ export class BuilderService implements OnModuleInit {
     //     .findOneAndUpdate({product: palette.product})
     // Add location to
   }
-
-
 
   // region Reset DB
   /**

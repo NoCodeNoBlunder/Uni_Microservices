@@ -30,9 +30,11 @@ let BuilderService = BuilderService_1 = class BuilderService {
     async onModuleInit() {
         await this.clear();
     }
-    getByTag(tag) {
-        console.log('getByTag called with ' + tag);
-        return this.buildEventModel.find({ tags: tag }).exec();
+    async getPalettes() {
+        const c = this.paletteModel.find().exec();
+        console.log('[builder.service] getPalettes Query result: ' +
+            JSON.stringify(c, null, 3));
+        return c;
     }
     async getOrdersToPick() {
         const c = this.pickTaskModel.find({}).exec();
@@ -45,6 +47,10 @@ let BuilderService = BuilderService_1 = class BuilderService {
         const c = await this.pickTaskModel.findOne({ code: orderID }).exec();
         console.log('Result', JSON.stringify(c, null, 3));
         return c;
+    }
+    getByTag(tag) {
+        console.log('getByTag called with ' + tag);
+        return this.buildEventModel.find({ tags: tag }).exec();
     }
     async store(event) {
         const placeholder = await this.buildEventModel

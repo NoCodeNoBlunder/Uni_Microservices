@@ -74,4 +74,9 @@ describe('Shop Test', () =>
     cy.contains('picking')
   })
 
+  it('Check if palette amount decremented', () => {
+    cy.contains('picking')
+  })
+
+
 })

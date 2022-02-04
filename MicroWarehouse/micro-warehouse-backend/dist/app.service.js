@@ -18,7 +18,8 @@ let AppService = class AppService {
     }
     async getQuery(key) {
         console.log('[app.service] getQuery called with key:' + key);
-        if (key === 'paletteStored') {
+        if (key === 'palettes') {
+            return await this.modelBuilderService.getPalettes();
         }
         else if (key === 'OrdersToPick') {
             const c = await this.modelBuilderService.getOrdersToPick();

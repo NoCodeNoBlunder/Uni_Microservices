@@ -27,8 +27,8 @@ export class StoreTasksComponent implements OnInit {
 
   handleQueryResponse(answer: any) {
     console.log("[store-task.component] handeQueryResponse get pased answer: " + JSON.stringify(answer, null, 3));
-    for (const event of answer.result) {
-      this.palettes.push(event.payload);
+    for (const event of answer) {
+      this.palettes.push(event);
     }
     this.storeTaskString = `/query/palettes response contains ${this.palettes.length} palettes`
     console.log(this.storeTaskString)

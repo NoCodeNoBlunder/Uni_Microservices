@@ -12,8 +12,8 @@ export class AppService {
   // region Queries
   async getQuery(key: string): Promise<any> {
     console.log('[app.service] getQuery called with key:' + key);
-    if (key === 'paletteStored') {
-      // return await this.modelBuilderService.getPalettes():
+    if (key === 'palettes') {
+      return await this.modelBuilderService.getPalettes();
     } else if (key === 'OrdersToPick') {
       const c = await this.modelBuilderService.getOrdersToPick();
       console.log('app.service getQuery' + JSON.stringify(c, null, 3));
