@@ -60,7 +60,9 @@ export class AppService {
       return await this.modelBuilderService.handleProductOrdered(event);
     }
     return {
-      error: 'Warehouse Backend does not know how to handle' + event.eventType,
+      error:
+        '[app.service] handleEvent Backend cannot handle event: ' +
+        event.eventType,
     };
   }
 

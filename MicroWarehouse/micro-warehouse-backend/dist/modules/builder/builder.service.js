@@ -144,7 +144,9 @@ let BuilderService = BuilderService_1 = class BuilderService {
                 .exec();
             const locations = [];
             for (const pal of productPalettes) {
-                locations.push(pal.location);
+                if (pal.location != null) {
+                    locations.push(pal.location);
+                }
             }
             const pickTask = {
                 code: params.code,

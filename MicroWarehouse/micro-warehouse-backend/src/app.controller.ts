@@ -28,7 +28,6 @@ export class AppController implements OnModuleInit {
   ) {}
 
   onModuleInit() {
-    console.log('[app.controller] Warehouse started');
     this.subscribeAtShop(false);
   }
 
@@ -45,7 +44,7 @@ export class AppController implements OnModuleInit {
           try {
             const eventList: any[] = response.data;
             console.log(
-              '[app.controller] subscrieAtShop Subscribers: ' +
+              '[app.controller] subscribeAtShop Subscribers: ' +
                 JSON.stringify(eventList, null, 3),
             );
             for (const event of eventList) {
@@ -55,7 +54,9 @@ export class AppController implements OnModuleInit {
               );
               await this.appService.handleEvent(event);
             }
-            console.log('Subscription from Warehouse to Shop succeeded.');
+            console.log(
+              '[app.controller] Subscription from Warehouse to Shop succeeded.',
+            );
           } catch (error) {
             console.log(
               'AppController onModuleInit subscribe handleEvent error' +
@@ -76,7 +77,7 @@ export class AppController implements OnModuleInit {
   @Post('subscribe')
   async postSubscribe(@Body() subscription: Subscription) {
     try {
-      if (subscription.isReturnSubscription) {
+      if (!subscription.isReturnSubscription) {
         this.subscribeAtShop(true);
       }
       return await this.appService.handleSubscription(subscription);

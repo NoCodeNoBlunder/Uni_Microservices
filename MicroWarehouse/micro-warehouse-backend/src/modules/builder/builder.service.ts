@@ -217,7 +217,10 @@ export class BuilderService implements OnModuleInit {
         .exec();
       const locations: string[] = [];
       for (const pal of productPalettes) {
-        locations.push(pal.location);
+        if (pal.location != null) {
+          // TODO hinzugefügt!
+          locations.push(pal.location);
+        }
       }
       const pickTask = {
         code: params.code,

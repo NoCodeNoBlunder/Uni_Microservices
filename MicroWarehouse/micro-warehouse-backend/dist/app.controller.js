@@ -27,7 +27,6 @@ let AppController = AppController_1 = class AppController {
         this.logger = new common_1.Logger(AppController_1.name);
     }
     onModuleInit() {
-        console.log('[app.controller] Warehouse started');
         this.subscribeAtShop(false);
     }
     subscribeAtShop(isSubscribed) {
@@ -40,14 +39,14 @@ let AppController = AppController_1 = class AppController {
             .subscribe(async (response) => {
             try {
                 const eventList = response.data;
-                console.log('[app.controller] subscrieAtShop Subscribers: ' +
+                console.log('[app.controller] subscribeAtShop Subscribers: ' +
                     JSON.stringify(eventList, null, 3));
                 for (const event of eventList) {
                     console.log('AppController onModuleInit subscribe handle' +
                         JSON.stringify(event, null, 3));
                     await this.appService.handleEvent(event);
                 }
-                console.log('Subscription from Warehouse to Shop succeeded.');
+                console.log('[app.controller] Subscription from Warehouse to Shop succeeded.');
             }
             catch (error) {
                 console.log('AppController onModuleInit subscribe handleEvent error' +
@@ -59,7 +58,7 @@ let AppController = AppController_1 = class AppController {
     }
     async postSubscribe(subscription) {
         try {
-            if (subscription.isReturnSubscription) {
+            if (!subscription.isReturnSubscription) {
                 this.subscribeAtShop(true);
             }
             return await this.appService.handleSubscription(subscription);

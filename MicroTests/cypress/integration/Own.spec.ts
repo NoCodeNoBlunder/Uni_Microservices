@@ -13,23 +13,23 @@ describe('Shop Test', () =>
   it('Add one palette', () => {
     cy.get('#barcodeInput').type('cy001')
     cy.get('#productInput').type('skateboard')
-    cy.get('#amountInput').type('6')
-    cy.get('#locationInput').type('front row')
+    cy.get('#amountInput').type('2')
+    cy.get('#locationInput').type('shelf001')
 
     cy.get('#addPalette').click()
-    cy.get('#cy001').contains('6')
+    cy.get('#cy001').contains('2') // INFO TYPED palette amount 2 here.
     cy.get('#cy001').contains('skateboard')
-    cy.get('#cy001').contains('front row')
+    cy.get('#cy001').contains('shelf001')
   })
 
   it('Add Offer', () => {
     cy.wait(1000)
     cy.visit('http://localhost:4400/home')
-    // cy.wait(250)
     cy.get("#go-shopping-button").click()
     cy.wait(1000)
-    cy.get('#add-button').click()
-    cy.contains('Edit Offer:')
+    cy.contains("Offers overview:")
+    cy.get('#edit-button').click()
+    cy.wait(1000)
     cy.get('#name').type('skateboard')
     cy.get('#price').type('88')
     cy.get('#submitOfferButton').click()
@@ -37,22 +37,41 @@ describe('Shop Test', () =>
   })
 
   it('Click on Product Link', () => {
+    cy.wait(1000)
     cy.visit('http://localhost:4400')
+    cy.wait(1000)
     cy.contains("skateboard").click()
     cy.contains("Order details:")
     cy.get('#orderInput')
-    cy.get("#addressInput").type("Unter der Brücke 1")
     cy.get("#customerInput").type("Mehdi")
+    cy.get("#addressInput").type("Unter der Brücke 1")
     cy.get("#submitOrderButton").click()
 
     cy.contains('Mehdi')
-    cy.contains('Your skateboard are in state order placed')
+    cy.contains('Your skateboard is/are in state: order placed')
   })
 
-  it('Check Pick Tasks', () => {
-    cy.wait(500)
+  it("Check product amount decremented", () => {
+    cy.contains("We offer 1")
+  })
+
+  it('Select Pick Tasks', () => {
+    // cy.wait(2000)
     cy.visit('http://localhost:4200/pick-tasks')
     cy.contains('Pick Tasks:')
-    cy.contains('skateboard')
+    cy.wait(2000)
+    cy.contains('skateboard').click()
+    cy.get('#location-form').type("shelf001")
+    cy.get('#location-form').clear()
+    cy.get('#location-form').type("shelf00")
+    cy.get('#location-form').type("1")
+    cy.contains("Edit-Pick:")
+    cy.wait(250)
+    cy.get("#submitPickTaskButton").click()
   })
+
+  it('Check status updated pickTask', () => {
+    cy.contains('picking')
+  })
+
 })

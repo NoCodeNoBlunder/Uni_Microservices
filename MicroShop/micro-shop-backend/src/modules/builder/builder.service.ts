@@ -82,20 +82,25 @@ export class BuilderService implements OnModuleInit {
         { upsert: true, new: true }
     ).exec()
 
-    await this.productsModel.findOneAndUpdate(
+    const product = await this.productsModel.findOneAndUpdate(
         { product: params.product },
         {
           $inc: { amount: -1 },
         },
         { new: true }
-    )
+    ).exec()
 
+    if (product.amount <= 0) {
+      await this.productsModel.deleteMany({ product: product.product })
+    }
+
+    // TODO should i change the product amount here also? What about the palettes?
     const event = {
       blockId: params.order,
       time: new Date().toISOString(),
       eventType: 'productOrdered',
       tags: ['products', params.order],
-      payload: orderDto,
+      payload: orderDto
     };
     await this.storeEvent(event);
     // Notify the subscriber of this new event.
@@ -128,6 +133,20 @@ export class BuilderService implements OnModuleInit {
   }
 
   // region Handlers
+  async handleSubscription(subscription: Subscription) {
+    console.log("[builder.service] handleSubscription with: " + subscription.subscriberUrl)
+    if (!this.subscriberUrls.includes(subscription.subscriberUrl)) {
+      this.subscriberUrls.push(subscription.subscriberUrl);
+    }
+
+    return await this.buildEventModel
+        .find({
+          eventType: 'productOrdered',
+          time: {$gt: subscription.lastEventTime },
+        })
+        .exec();
+  }
+
   async handleProductStored(event: BuildEvent) {
     console.log("[builder.service] handleProductStored with event: " + JSON.stringify(event, null, 3));
 
@@ -150,7 +169,6 @@ export class BuilderService implements OnModuleInit {
     }
     return newProduct;
   }
-
 
   async handleAddOffer(event: BuildEvent) {
     // store a build event
@@ -222,20 +240,6 @@ export class BuilderService implements OnModuleInit {
     else {
       return await this.productsModel.findOne({product: event.blockId});
     }
-  }
-
-  async handleSubscription(subscription: Subscription) {
-    console.log("[builder.service] handleSubscription with: " + subscription.subscriberUrl)
-    if (!this.subscriberUrls.includes(subscription.subscriberUrl)) {
-      this.subscriberUrls.push(subscription.subscriberUrl);
-    }
-
-    return await this.buildEventModel
-        .find({
-          eventType: 'productOrdered',
-          time: {$gt: subscription.lastEventTime},
-        })
-        .exec();
   }
 
   async handleOrderPicked(event: BuildEvent) {
