@@ -13,12 +13,12 @@ import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { HttpClientModule } from "@angular/common/http";
 import { PickTasksModule } from "./components/pick-tasks/pick-tasks.module";
 import { EditPickComponent } from './components/edit-pick/edit-pick.component';
-import { DeliverOrdersModule } from "./components/deliver-orders/deliver-orders.module";
 import { AddPaletteComponent }  from "./components/add-palette/add-palette.component";
-import { DeliverOrdersComponent } from "./components/deliver-orders/deliver-orders.component";
 import { PickTasksComponent } from "./components/pick-tasks/pick-tasks.component";
 import { HomeComponent } from "./components/home/home.component";
 import { StoreTasksComponent } from "./components/store-tasks/store-tasks.component";
+import { ConfirmDeliveryComponent } from './components/confirm-delivery/confirm-delivery.component';
+import { ConfirmDeliveryModule } from "./components/confirm-delivery/confirm-delivery.module";
 // import { ToastModule, ToastService,} from "ng-bootstrap-ext"; // TODO Install Toast in warehouse
 
 @NgModule({
@@ -27,9 +27,9 @@ import { StoreTasksComponent } from "./components/store-tasks/store-tasks.compon
     AppComponent,
     EditPickComponent,
     AddPaletteComponent,
-    DeliverOrdersComponent,
     PickTasksComponent,
     StoreTasksComponent,
+    ConfirmDeliveryComponent,
   ],
     imports: [ // Imports these Modules to the top level so the router module can access them.
         BrowserModule,
@@ -41,7 +41,7 @@ import { StoreTasksComponent } from "./components/store-tasks/store-tasks.compon
         StoreTasksModule,
         AddPaletteModule,
         PickTasksModule,
-        DeliverOrdersModule
+        ConfirmDeliveryModule,
     ],
   providers: [],
   bootstrap: [AppComponent]

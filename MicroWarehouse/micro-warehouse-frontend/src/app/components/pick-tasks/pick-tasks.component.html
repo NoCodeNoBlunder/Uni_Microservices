@@ -5,7 +5,7 @@
     <h2 class="fw-bold text-primary text-center my-4">Pick Tasks:</h2>
   </div>
 
-    <a class="row my-2 d-flex justify-content-center" [routerLink]="['/pick-tasks/edit-pick/', pickTask.code]"
+    <a class="row my-2 d-flex justify-content-center" (click)="changeStatus(pickTask.code, pickTask.state)"
        *ngFor="let pickTask of pickTasks">
 
       <div class="col-3 d-flex justify-content-center">

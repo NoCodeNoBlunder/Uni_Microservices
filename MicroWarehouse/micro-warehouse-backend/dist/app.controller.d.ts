@@ -17,6 +17,7 @@ export declare class AppController implements OnModuleInit {
     getQuery(key: string): Promise<any>;
     postCommand(command: Command): Promise<any>;
     postPickDone(params: any): Promise<any>;
+    postProductShipped(params: any): Promise<any>;
     getReset(): Promise<string>;
     getHello(): string;
 }

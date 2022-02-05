@@ -54,6 +54,11 @@ export class AppService {
     return 200;
   }
 
+  async handleProductShipped(params: any) {
+    await this.modelBuilderService.handleProductShipped(params);
+    return 200;
+  }
+
   async handleEvent(event: BuildEvent) {
     console.log(
       '[app.service] handleEvent called with event: ' +

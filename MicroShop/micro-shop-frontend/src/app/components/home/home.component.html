@@ -2,11 +2,11 @@
 
 <div class ="container">
 
-  <h2 class="fw-bold text-primary text-center my-4">Welcome to the Shop</h2>
+  <h1 class="fw-bold text-primary text-center my-4">Welcome to the Shop</h1>
 
   <div class="row d-flex justify-content-center my-2">
     <div class="col d-flex justify-content-center">
-      Greetings {{customer}}! <br>
+       <p>Greetings {{customer}}</p>
     </div>
   </div>
 
@@ -14,7 +14,7 @@
        *ngFor="let order of orders">
 
     <div class="col-6 d-flex justify-content-center">
-      <label>Your order for <b>{{order.product}}</b> is/are in state: <b>{{order.state}}</b></label>
+      <label>Your order for <b>{{order.product}}</b> is in state: <b>{{order.state}}</b></label>
     </div>
   </div>
 
@@ -28,7 +28,7 @@
       <label>{{myOffer.product}}</label>
     </div>
     <div class="col-2 d-flex">
-      <label>${{myOffer.price}} </label>
+      <label>{{myOffer.price}}€</label>
     </div>
   </a>
 

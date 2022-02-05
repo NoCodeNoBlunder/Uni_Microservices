@@ -252,12 +252,14 @@ export class BuilderService implements OnModuleInit {
   }
 
   // Updates the palette after a Pick event occured.
+  // TODO I need a callstack for handeDeliveryDone
   async handlePickDone(params: any) {
     console.log(
       '[builder.service] handlePickDone called wtih: ' +
         JSON.stringify(params, null, 3),
     );
 
+    // TODO DO I need this the barcode is not changing is it?
     let barCode = params.code;
 
     if (params.state === 'picking') {
@@ -280,11 +282,44 @@ export class BuilderService implements OnModuleInit {
 
     // Update pickTask.
     const pick = await this.pickTaskModel
-      // TODO Muss ich die Attribute die nicht verändert werden solle auch angeben?
       .findOneAndUpdate(
         { code: params.code },
         {
           palette: barCode,
+          locations: [params.location], // only have one location after picking.
+          state: params.state, // Here the new state is assigned.
+        },
+        { new: true },
+      )
+      .exec();
+
+    // publish change
+    const event = {
+      eventType: 'orderPicked',
+      blockId: pick.code,
+      time: new Date().toISOString(),
+      tags: ['orders', pick.code],
+      payload: {
+        code: pick.code,
+        state: pick.state,
+      },
+    };
+    const storeSuccess = await this.store(event);
+    this.publish(event);
+  }
+
+  async handleProductShipped(params: any) {
+    console.log(
+      '[builder.service] handleProductShipped called with: ' +
+        JSON.stringify(params, null, 3),
+    );
+
+    // Update pickTask.
+    const pick = await this.pickTaskModel
+      .findOneAndUpdate(
+        { code: params.code },
+        {
+          // palette: barCode, // TODO ???
           state: params.state, // Here the new state is assigned.
         },
         { new: true },

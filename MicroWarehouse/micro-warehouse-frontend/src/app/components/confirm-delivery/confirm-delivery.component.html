@@ -1,0 +1,37 @@
+
+<body>
+  <div class="col d-flex justify-content-center">
+    <h1 class="fw-bold text-primary text-center my-4">Confirm-Delivery:</h1>
+  </div>
+
+  <div class="container">
+    <table class="table table-bordered table-hover">
+      <thead class="table-dark">
+      <tr>
+        <th scope="col">OrderID</th>
+        <th scope="col">Product</th>
+        <th scope="col">Address</th>
+        <th scope="col">Location</th>
+        <th scope="col">Palette</th>
+      </tr>
+      </thead>
+
+      <tbody>
+      <tr>
+        <td>{{OrderID}}</td>
+        <td>{{product}}</td>
+        <td>{{address}}</td>
+        <td>{{location}}</td>
+        <td>{{palette}}</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="row justify-content-center my-5">
+    <div class="col-md-auto">
+      <a id="confirm-delivery-button" class="btn btn-outline-dark" (click)="submitDelivery()"><h4 class="m-2">Confirm Delivery</h4></a>
+    </div>
+  </div>
+</body>
+

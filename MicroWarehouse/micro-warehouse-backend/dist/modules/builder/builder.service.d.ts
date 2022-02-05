@@ -35,6 +35,7 @@ export declare class BuilderService implements OnModuleInit {
     publish(newEvent: BuildEvent): void;
     handleProductOrdered(event: BuildEvent): Promise<number>;
     handlePickDone(params: any): Promise<void>;
+    handleProductShipped(params: any): Promise<void>;
     private storeModelPalette;
     clear(): Promise<void>;
     reset(): Promise<void>;

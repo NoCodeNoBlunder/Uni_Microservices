@@ -20,20 +20,20 @@ export class OfferTasksComponent implements OnInit {
 
   ngOnInit(): void {
 
-    // Dummy Data.
-    this.offers.push({
-      // TODO changed this from name to product.
-      product: "jeans",
-      state: "in stock",
-      amount: 6,
-      price: 0.0,
-    });
-    this.offers.push({
-      product: "tshirt",
-      state: "in stock",
-      amount: 7,
-      price: 0.0,
-    });
+    // // Dummy Data.
+    // this.offers.push({
+    //   // TODO changed this from name to product.
+    //   product: "jeans",
+    //   state: "in stock",
+    //   amount: 6,
+    //   price: 0.0,
+    // });
+    // this.offers.push({
+    //   product: "tshirt",
+    //   state: "in stock",
+    //   amount: 7,
+    //   price: 0.0,
+    // });
 
     this.storeTaskString = `number of offers ${this.offers.length}`
 
@@ -54,6 +54,6 @@ export class OfferTasksComponent implements OnInit {
         // Add all products to available offers.
         this.offers.push(product)
     }
-    this.storeTaskString = `number of offers ${this.offers.length}`
+    this.storeTaskString = `Dinstince products in Warehouse: ${this.offers.length}`
   }
 }

@@ -19,6 +19,12 @@ describe('Full Test', () =>
     cy.get('#cy001').contains(/^2$/) // INFO TYPED palette amount 2 here.
     cy.get('#cy001').contains('skateboard')
     cy.get('#cy001').contains('shelf001')
+
+    // cy.visit('http://localhost:4200/store-tasks/add-palette')
+    // cy.get('#barcodeInput').type('cy002')
+    // cy.get('#productInput').type('Ipad Pro')
+    // cy.get('#amountInput').type('1')
+    // cy.get('#locationInput').type('front shelf')
   })
 
   // Administritative page.
@@ -34,6 +40,13 @@ describe('Full Test', () =>
     cy.get('#price').type('88')
     cy.get('#submitOfferButton').click()
     cy.contains("Offers overview:")
+
+    // cy.visit('http://localhost:4400/home')
+    // cy.get("#go-shopping-button").click()
+    // cy.get('#edit-button').click()
+    // cy.get('#name').type('Ipad Pro')
+    // cy.get('#price').type('999.99')
+    // cy.get('#submitOfferButton').click()
   })
 
   it('Select and Order skateboard', () => {
@@ -43,16 +56,16 @@ describe('Full Test', () =>
     cy.contains("skateboard").click()
     cy.contains("Order details:")
     cy.get('#orderInput')
-    cy.get("#customerInput").type("Mehdi")
+    cy.get("#customerInput").type("alex")
     cy.get("#addressInput").type("Unter der Brücke 1")
     cy.get("#submitOrderButton").click()
 
-    cy.contains('Mehdi')
-    cy.contains('Your order for skateboard is/are in state: order placed')
+    cy.contains('alex')
+    cy.contains('Your order for skateboard is in state: order placed')
   })
 
   it("Check product amount decremented", () => {
-    cy.contains("Greetings Mehdi, you have 1 active orders!")
+    cy.contains("Greetings alex, you have 1 active order(s)")
     cy.contains("We offer 1")
   })
 
@@ -60,7 +73,7 @@ describe('Full Test', () =>
     // cy.wait(2000)
     cy.visit('http://localhost:4200/pick-tasks')
     cy.contains('Pick Tasks:')
-    cy.wait(2000)
+    cy.wait(2500)
     cy.contains('skateboard').click()
     cy.get('#location-form').type("shelf001")
     cy.get('#location-form').clear()
@@ -83,8 +96,8 @@ describe('Full Test', () =>
 
   it('Check Customer Status update to picked', () => {
     cy.wait(2000)
-    cy.visit('http://localhost:4400/home/Mehdi')
-    cy.contains('Your order for skateboard is/are in state: picking')
+    cy.visit('http://localhost:4400/home/alex')
+    cy.contains('Your order for skateboard is in state: picking')
   })
 
 

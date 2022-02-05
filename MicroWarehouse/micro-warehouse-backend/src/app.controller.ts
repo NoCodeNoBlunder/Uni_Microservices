@@ -145,6 +145,18 @@ export class AppController implements OnModuleInit {
     }
   }
 
+  @Post('cmd/shipped')
+  async postProductShipped(@Body() params: any) {
+    console.log('[app.controller] postShipped called.');
+
+    try {
+      this.logger.log(`\npostShipped got ${JSON.stringify(params, null, 3)}`);
+      return await this.appService.handleProductShipped(params);
+    } catch (error) {
+      return error;
+    }
+  }
+
   @Get('reset')
   async getReset() {
     return await this.appService.getReset();

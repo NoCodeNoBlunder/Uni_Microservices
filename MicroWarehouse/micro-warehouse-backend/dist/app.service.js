@@ -58,6 +58,10 @@ let AppService = class AppService {
         await this.modelBuilderService.handlePickDone(params);
         return 200;
     }
+    async handleProductShipped(params) {
+        await this.modelBuilderService.handleProductShipped(params);
+        return 200;
+    }
     async handleEvent(event) {
         console.log('[app.service] handleEvent called with event: ' +
             JSON.stringify(event, null, 3));

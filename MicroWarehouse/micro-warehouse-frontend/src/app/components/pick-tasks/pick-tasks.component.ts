@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from "@angular/common/http";
+import { Router } from "@angular/router";
 // TODO need a different location for these schemas they are used by both front and backend.
 
 
@@ -10,9 +11,11 @@ import { HttpClient } from "@angular/common/http";
 })
 export class PickTasksComponent implements OnInit {
 
-  constructor(private http: HttpClient) { }
+  constructor(
+    private http: HttpClient,
+    private router: Router
+  ) { }
 
-  // public pickTasks: any[] = [{code: "123", product: "test", locations: ["kassel"], address: "Unter der Brücke", state: "ordered"}];
   public pickTasks: any[] = []
   debugString = ""
 
@@ -32,5 +35,17 @@ export class PickTasksComponent implements OnInit {
     }
     this.debugString = `/query/palettes response contains ${this.pickTasks.length} palettes`
     console.log(this.debugString)
+  }
+
+  changeStatus(orderID: string, status: string) {
+    console.log("row clicked with orderID " + orderID)
+    console.log("row clicked with status " + status)
+    if (status === "order placed") {
+      this.router.navigate(['pick-tasks/edit-pick', orderID])
+    }
+    else if (status === 'picking') {
+      this.router.navigate(['pick-tasks/confirm-delivery', orderID])
+    }
+
   }
 }

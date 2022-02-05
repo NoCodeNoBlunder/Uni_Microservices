@@ -53,7 +53,7 @@ export class HomeComponent implements OnInit {
     for (const order of answer) {
       this.orders.push(order);
     }
-    this.customer = `${this.customer}, you have ${this.orders.length} active orders`
+    this.customer = `${this.customer}, you have ${this.orders.length} active order(s)`
   }
 
 }

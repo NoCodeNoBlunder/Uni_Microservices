@@ -11,6 +11,13 @@ import { ActivatedRoute, Router } from "@angular/router";
 })
 export class EditPickComponent implements OnInit {
 
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private route: ActivatedRoute, // INFO gives access to the current route.
+    // private toastService: ToastService
+  ) { }
+
   public productID = ''
   public locations = ''
   public product = ''
@@ -21,13 +28,6 @@ export class EditPickComponent implements OnInit {
     product: new FormControl('', [Validators.required /*, this.productNameValidator()*/]),
     location: new FormControl('', [Validators.required , this.productLocationValidator()]),
   });
-
-  constructor(
-    private http: HttpClient,
-    private router: Router,
-    private route: ActivatedRoute, // INFO gives access to the current route.
-    // private toastService: ToastService
-  ) { }
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
@@ -61,12 +61,12 @@ export class EditPickComponent implements OnInit {
     console.log("submitPickTask called!")
 
     // INFO decide on which product to choose form.
-    const newState = this.productState === "order placed" ? "picking" : "shipping"
+    // const newState = this.productState === "order placed" ? "picking" : "shipping"
 
     const pickDone = {
       code: this.productID,
       product: this.product,
-      state: newState,
+      state: "picking",
       location: this.formGroup.get("location")?.value
     }
 

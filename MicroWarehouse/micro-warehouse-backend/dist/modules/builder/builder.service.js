@@ -186,6 +186,28 @@ let BuilderService = BuilderService_1 = class BuilderService {
         const pick = await this.pickTaskModel
             .findOneAndUpdate({ code: params.code }, {
             palette: barCode,
+            locations: [params.location],
+            state: params.state,
+        }, { new: true })
+            .exec();
+        const event = {
+            eventType: 'orderPicked',
+            blockId: pick.code,
+            time: new Date().toISOString(),
+            tags: ['orders', pick.code],
+            payload: {
+                code: pick.code,
+                state: pick.state,
+            },
+        };
+        const storeSuccess = await this.store(event);
+        this.publish(event);
+    }
+    async handleProductShipped(params) {
+        console.log('[builder.service] handleProductShipped called with: ' +
+            JSON.stringify(params, null, 3));
+        const pick = await this.pickTaskModel
+            .findOneAndUpdate({ code: params.code }, {
             state: params.state,
         }, { new: true })
             .exec();

@@ -105,6 +105,16 @@ let AppController = AppController_1 = class AppController {
             return error;
         }
     }
+    async postProductShipped(params) {
+        console.log('[app.controller] postShipped called.');
+        try {
+            this.logger.log(`\npostShipped got ${JSON.stringify(params, null, 3)}`);
+            return await this.appService.handleProductShipped(params);
+        }
+        catch (error) {
+            return error;
+        }
+    }
     async getReset() {
         return await this.appService.getReset();
     }
@@ -154,6 +164,13 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], AppController.prototype, "postPickDone", null);
+__decorate([
+    (0, common_1.Post)('cmd/shipped'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AppController.prototype, "postProductShipped", null);
 __decorate([
     (0, common_1.Get)('reset'),
     __metadata("design:type", Function),

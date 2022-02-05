@@ -15,6 +15,7 @@ export declare class AppService {
     }>;
     handleCommand(command: Command): Promise<string | Command>;
     handlePickDone(params: any): Promise<number>;
+    handleProductShipped(params: any): Promise<number>;
     handleEvent(event: BuildEvent): Promise<number | {
         error: string;
     }>;
