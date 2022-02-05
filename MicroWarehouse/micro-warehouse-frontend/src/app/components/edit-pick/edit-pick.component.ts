@@ -14,7 +14,7 @@ export class EditPickComponent implements OnInit {
   public productID = ''
   public locations = ''
   public product = ''
-  public state = ''
+  public productState = ''
 
   public formGroup = new FormGroup({
     // Validater is a function that is called whenever something is changed in the Input field.
@@ -42,7 +42,7 @@ export class EditPickComponent implements OnInit {
             console.log("edit pick tasks WH FE location: " + JSON.stringify(answer, null, 3));
             this.locations = answer.locations;
             this.product = answer.product;
-            this.state = answer.state;
+            this.productState = answer.state;
             this.formGroup.get('product')?.setValue(this.product);
           },
           error => { console.log("Problem picking: location" + JSON.stringify(error, null, 3));}
@@ -60,10 +60,13 @@ export class EditPickComponent implements OnInit {
   submitPickTask() {
     console.log("submitPickTask called!")
 
+    // INFO decide on which product to choose form.
+    const newState = this.productState === "order placed" ? "picking" : "shipping"
+
     const pickDone = {
       code: this.productID,
       product: this.product,
-      state: "picking",
+      state: newState,
       location: this.formGroup.get("location")?.value
     }
 

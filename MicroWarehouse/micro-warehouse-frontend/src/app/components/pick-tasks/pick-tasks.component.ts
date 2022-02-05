@@ -17,7 +17,7 @@ export class PickTasksComponent implements OnInit {
   debugString = ""
 
   ngOnInit(): void {
-    // Get request Query to get picktasks via app.controller in warehouse backend.
+    // Get request Query to get picktasks via app.controller in warehouse backnd.
     this.http.get<any>('http://localhost:3000/query/OrdersToPick')
       .subscribe(
         answer => this.handleQueryResponse(answer),

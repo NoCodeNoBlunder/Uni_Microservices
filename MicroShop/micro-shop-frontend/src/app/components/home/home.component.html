@@ -14,7 +14,7 @@
        *ngFor="let order of orders">
 
     <div class="col-6 d-flex justify-content-center">
-      <label>Your <b>{{order.product}}</b> is/are in state: <b>{{order.state}}</b></label>
+      <label>Your order for <b>{{order.product}}</b> is/are in state: <b>{{order.state}}</b></label>
     </div>
   </div>
 
@@ -43,12 +43,11 @@
     <div class="col-md-auto">
       <!--TODO href nicht in angular, weil href kompletter reload.-->
       <!--Schneller und heap ghet nicht verloren.-->
-      <a id="go-shopping-button" class="btn btn-outline-dark" routerLink="/offer-tasks"><h4 class="m-2">Go Shopping</h4></a>
+      <a id="go-shopping-button" class="btn btn-outline-dark" routerLink="/offer-tasks"><h4 class="m-2">Administrative Page</h4></a>
     </div>
   </div>
 
   <!--<div class="col-md-auto">-->
   <!--  <a class="btn btn-outline-dark" routerLink="/offer-tasks"><h4 class="m-2">Go Shopping</h4></a>-->
   <!--</div>-->
-
 </div>

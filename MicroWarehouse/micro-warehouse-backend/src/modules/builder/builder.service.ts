@@ -257,17 +257,26 @@ export class BuilderService implements OnModuleInit {
       '[builder.service] handlePickDone called wtih: ' +
         JSON.stringify(params, null, 3),
     );
-    // Update palette.
-    const pal = await this.paletteModel
-      .findOneAndUpdate(
-        { location: params.location },
-        {
-          $inc: { amount: -1 },
-        },
-        { new: true }, // return the new palette.
-      )
-      .exec();
-    this.logger.log(`handlePickDone new pal \n${JSON.stringify(pal, null, 3)}`);
+
+    let barCode = params.code;
+
+    if (params.state === 'picking') {
+      // Update palette only if state is changed to picking.
+      const pal = await this.paletteModel
+        .findOneAndUpdate(
+          { location: params.location },
+          {
+            $inc: { amount: -1 },
+          },
+          { new: true }, // return the new palette.
+        )
+        .exec();
+      this.logger.log(
+        `handlePickDone new pal \n${JSON.stringify(pal, null, 3)}`,
+      );
+
+      barCode = pal.barcode;
+    }
 
     // Update pickTask.
     const pick = await this.pickTaskModel
@@ -275,7 +284,7 @@ export class BuilderService implements OnModuleInit {
       .findOneAndUpdate(
         { code: params.code },
         {
-          palette: pal.barcode,
+          palette: barCode,
           state: params.state, // Here the new state is assigned.
         },
         { new: true },

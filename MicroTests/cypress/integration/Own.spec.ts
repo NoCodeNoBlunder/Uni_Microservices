@@ -1,28 +1,28 @@
-describe('Shop Test', () =>
+describe('Full Test', () =>
 {
+  // Reset DBs.
   it('resets shop and warehouse DB.', () => {
     cy.request('GET', 'http://localhost:3000/reset')
     cy.request('GET', 'http://localhost:3100/reset')
   })
 
-  it('Go to Warehouse store-tasks/add-palette', () => {
+  // Add a palette.
+  it('Add a palette with skateboard', () => {
     cy.visit('http://localhost:4200/store-tasks/add-palette')
     cy.contains('Store new palette:')
-  })
-
-  it('Add one palette', () => {
     cy.get('#barcodeInput').type('cy001')
     cy.get('#productInput').type('skateboard')
     cy.get('#amountInput').type('2')
     cy.get('#locationInput').type('shelf001')
 
     cy.get('#addPalette').click()
-    cy.get('#cy001').contains('2') // INFO TYPED palette amount 2 here.
+    cy.get('#cy001').contains(/^2$/) // INFO TYPED palette amount 2 here.
     cy.get('#cy001').contains('skateboard')
     cy.get('#cy001').contains('shelf001')
   })
 
-  it('Add Offer', () => {
+  // Administritative page.
+  it('Add Offer for skateboard', () => {
     cy.wait(1000)
     cy.visit('http://localhost:4400/home')
     cy.get("#go-shopping-button").click()
@@ -36,7 +36,7 @@ describe('Shop Test', () =>
     cy.contains("Offers overview:")
   })
 
-  it('Click on Product Link', () => {
+  it('Select and Order skateboard', () => {
     cy.wait(1000)
     cy.visit('http://localhost:4400')
     cy.wait(1000)
@@ -48,10 +48,11 @@ describe('Shop Test', () =>
     cy.get("#submitOrderButton").click()
 
     cy.contains('Mehdi')
-    cy.contains('Your skateboard is/are in state: order placed')
+    cy.contains('Your order for skateboard is/are in state: order placed')
   })
 
   it("Check product amount decremented", () => {
+    cy.contains("Greetings Mehdi, you have 1 active orders!")
     cy.contains("We offer 1")
   })
 
@@ -75,7 +76,15 @@ describe('Shop Test', () =>
   })
 
   it('Check if palette amount decremented', () => {
-    cy.contains('picking')
+    cy.wait(1000)
+    cy.visit('http://localhost:4200/store-tasks')
+    cy.contains(/^1$/) // TODO Check with regex
+  })
+
+  it('Check Customer Status update to picked', () => {
+    cy.wait(2000)
+    cy.visit('http://localhost:4400/home/Mehdi')
+    cy.contains('Your order for skateboard is/are in state: picking')
   })
 
 
