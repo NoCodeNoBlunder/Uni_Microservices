@@ -31,7 +31,60 @@ export class BuilderService implements OnModuleInit {
     await this.clear();
   }
 
-  // TODO do I need awaits here?
+  // region Publisher Subscriber
+  async handleSubscription(subscription: subscription) {
+    // store in subscribter list
+    console.log(
+      '[builder.service] handleSubscription with subscriberUrl: ' +
+        subscription.subscriberUrl,
+    );
+    if (!this.subscriberUrls.includes(subscription.subscriberUrl)) {
+      // Add the new subscriberUrl is not allready in the array add it.
+      this.subscriberUrls.push(subscription.subscriberUrl);
+    }
+
+    // publish event after last event
+    const eventList = await this.buildEventModel
+      .find({
+        // TODO eventType: 'productStored', ?
+        // eventType: 'PaletteStored',
+        eventType: 'productStored',
+        time: { $gt: subscription.lastEventTime },
+      })
+      .exec();
+
+    return eventList;
+  }
+
+  // Communicate with shop-backend.
+  publish(newEvent: BuildEvent) {
+    console.log(
+      '[builder.service] publish to SubscriberUrls:\n' +
+        JSON.stringify(this.subscriberUrls, null, 3),
+    );
+    const oldUrls = this.subscriberUrls;
+    this.subscriberUrls = [];
+    for (const subscriberUrl of oldUrls) {
+      this.httpService.post(subscriberUrl, newEvent).subscribe(
+        (response) => {
+          console.log(
+            'Warehouse builder service publish post response is \n' +
+              JSON.stringify(response.data, null, 3),
+          );
+          this.subscriberUrls.push(subscriberUrl);
+        },
+        (error) => {
+          console.log(
+            '[builder.service] publish error: \n' +
+              JSON.stringify(error, null, 3),
+          );
+        },
+      );
+    }
+  }
+  // endregion
+
+  // TODO do you need awaits here?
   // region Queries
   async getPalettes() {
     const c = this.paletteModel.find().exec();
@@ -125,8 +178,13 @@ export class BuilderService implements OnModuleInit {
           },
         };
 
+        // Add new palette location to existing pick-tasks
+        await this.pickTaskModel.updateMany(
+          { product: palette.product, state: 'order placed' },
+          { $addToSet: { locations: palette.location } },
+        );
         await this.store(newEvent);
-        this.publish(newEvent);
+        this.publish(newEvent); // TODO Do I not need await here?
       }
     } catch (error) {
       console.log(`store did not work ${error}`);
@@ -136,30 +194,6 @@ export class BuilderService implements OnModuleInit {
       `builderService.storePalette stores ${JSON.stringify(event, null, 3)}`,
     );
     return palette;
-  }
-
-  async handleSubscription(subscription: subscription) {
-    // store in subscribter list
-    console.log(
-      '[builder.service] handleSubscription with subscriberUrl: ' +
-        subscription.subscriberUrl,
-    );
-    if (!this.subscriberUrls.includes(subscription.subscriberUrl)) {
-      // Add the new subscriberUrl is not allready in the array add it.
-      this.subscriberUrls.push(subscription.subscriberUrl);
-    }
-
-    // publish event after last event
-    const eventList = await this.buildEventModel
-      .find({
-        // TODO eventType: 'productStored', ?
-        // eventType: 'PaletteStored',
-        eventType: 'productStored',
-        time: { $gt: subscription.lastEventTime },
-      })
-      .exec();
-
-    return eventList;
   }
 
   async computeAmount(productName: string) {
@@ -181,33 +215,7 @@ export class BuilderService implements OnModuleInit {
     return sum;
   }
 
-  // Communicate with shop-backend.
-  publish(newEvent: BuildEvent) {
-    console.log(
-      '[builder.service] publish to SubscriberUrls:\n' +
-        JSON.stringify(this.subscriberUrls, null, 3),
-    );
-    const oldUrls = this.subscriberUrls;
-    this.subscriberUrls = [];
-    for (const subscriberUrl of oldUrls) {
-      this.httpService.post(subscriberUrl, newEvent).subscribe(
-        (response) => {
-          console.log(
-            'Warehouse builder service publish post response is \n' +
-              JSON.stringify(response.data, null, 3),
-          );
-          this.subscriberUrls.push(subscriberUrl);
-        },
-        (error) => {
-          console.log(
-            '[builder.service] publish error: \n' +
-              JSON.stringify(error, null, 3),
-          );
-        },
-      );
-    }
-  }
-
+  // region Handlers
   /**
    * Finds all product with the name in db and gets all the location of these items.
    * @param event
@@ -336,6 +344,7 @@ export class BuilderService implements OnModuleInit {
     const storeSuccess = await this.store(event);
     this.publish(event);
   }
+  // endregion
 
   private async storeModelPalette(palette: any) {
     await this.paletteModel
@@ -348,6 +357,10 @@ export class BuilderService implements OnModuleInit {
   }
 
   // region Reset DB
+  async reset() {
+    await this.clear();
+  }
+
   /**
    * Clears the the Collection eventstores from the mongoDB.
    */
@@ -356,10 +369,6 @@ export class BuilderService implements OnModuleInit {
     await this.paletteModel.deleteMany();
     await this.buildEventModel.deleteMany();
     await this.pickTaskModel.deleteMany();
-  }
-
-  async reset() {
-    await this.clear();
   }
   // endregion
 }

@@ -30,6 +30,36 @@ let BuilderService = BuilderService_1 = class BuilderService {
     async onModuleInit() {
         await this.clear();
     }
+    async handleSubscription(subscription) {
+        console.log('[builder.service] handleSubscription with subscriberUrl: ' +
+            subscription.subscriberUrl);
+        if (!this.subscriberUrls.includes(subscription.subscriberUrl)) {
+            this.subscriberUrls.push(subscription.subscriberUrl);
+        }
+        const eventList = await this.buildEventModel
+            .find({
+            eventType: 'productStored',
+            time: { $gt: subscription.lastEventTime },
+        })
+            .exec();
+        return eventList;
+    }
+    publish(newEvent) {
+        console.log('[builder.service] publish to SubscriberUrls:\n' +
+            JSON.stringify(this.subscriberUrls, null, 3));
+        const oldUrls = this.subscriberUrls;
+        this.subscriberUrls = [];
+        for (const subscriberUrl of oldUrls) {
+            this.httpService.post(subscriberUrl, newEvent).subscribe((response) => {
+                console.log('Warehouse builder service publish post response is \n' +
+                    JSON.stringify(response.data, null, 3));
+                this.subscriberUrls.push(subscriberUrl);
+            }, (error) => {
+                console.log('[builder.service] publish error: \n' +
+                    JSON.stringify(error, null, 3));
+            });
+        }
+    }
     async getPalettes() {
         const c = this.paletteModel.find().exec();
         console.log('[builder.service] getPalettes Query result: ' +
@@ -85,6 +115,7 @@ let BuilderService = BuilderService_1 = class BuilderService {
                         amount: amount,
                     },
                 };
+                await this.pickTaskModel.updateMany({ product: palette.product, state: 'order placed' }, { $addToSet: { locations: palette.location } });
                 await this.store(newEvent);
                 this.publish(newEvent);
             }
@@ -94,20 +125,6 @@ let BuilderService = BuilderService_1 = class BuilderService {
         }
         console.log(`builderService.storePalette stores ${JSON.stringify(event, null, 3)}`);
         return palette;
-    }
-    async handleSubscription(subscription) {
-        console.log('[builder.service] handleSubscription with subscriberUrl: ' +
-            subscription.subscriberUrl);
-        if (!this.subscriberUrls.includes(subscription.subscriberUrl)) {
-            this.subscriberUrls.push(subscription.subscriberUrl);
-        }
-        const eventList = await this.buildEventModel
-            .find({
-            eventType: 'productStored',
-            time: { $gt: subscription.lastEventTime },
-        })
-            .exec();
-        return eventList;
     }
     async computeAmount(productName) {
         const paletteStoredList = await this.buildEventModel
@@ -121,22 +138,6 @@ let BuilderService = BuilderService_1 = class BuilderService {
             sum += e.payload.amount;
         }
         return sum;
-    }
-    publish(newEvent) {
-        console.log('[builder.service] publish to SubscriberUrls:\n' +
-            JSON.stringify(this.subscriberUrls, null, 3));
-        const oldUrls = this.subscriberUrls;
-        this.subscriberUrls = [];
-        for (const subscriberUrl of oldUrls) {
-            this.httpService.post(subscriberUrl, newEvent).subscribe((response) => {
-                console.log('Warehouse builder service publish post response is \n' +
-                    JSON.stringify(response.data, null, 3));
-                this.subscriberUrls.push(subscriberUrl);
-            }, (error) => {
-                console.log('[builder.service] publish error: \n' +
-                    JSON.stringify(error, null, 3));
-            });
-        }
     }
     async handleProductOrdered(event) {
         console.log('[builder.service] handleProductOrdered is called with event:' +
@@ -228,13 +229,13 @@ let BuilderService = BuilderService_1 = class BuilderService {
             .findOneAndUpdate({ barcode: palette.barcode }, palette, { upsert: true })
             .exec();
     }
+    async reset() {
+        await this.clear();
+    }
     async clear() {
         await this.paletteModel.deleteMany();
         await this.buildEventModel.deleteMany();
         await this.pickTaskModel.deleteMany();
-    }
-    async reset() {
-        await this.clear();
     }
 };
 BuilderService = BuilderService_1 = __decorate([

@@ -14,11 +14,8 @@ export class AddPaletteComponent implements OnInit {
   constructor(private http: HttpClient, private router: Router) { }
 
   barcode = ''
-
   product = ''
-
   amount = ''
-
   location = ''
 
   ngOnInit(): void {

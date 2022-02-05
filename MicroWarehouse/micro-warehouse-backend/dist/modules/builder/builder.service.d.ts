@@ -14,6 +14,10 @@ export declare class BuilderService implements OnModuleInit {
     logger: Logger;
     constructor(httpService: HttpService, buildEventModel: Model<BuildEvent>, pickTaskModel: Model<PickTask>, paletteModel: Model<Palette>);
     onModuleInit(): Promise<void>;
+    handleSubscription(subscription: subscription): Promise<(import("mongoose").Document<any, any, BuildEvent> & BuildEvent & {
+        _id: import("mongoose").Types.ObjectId;
+    })[]>;
+    publish(newEvent: BuildEvent): void;
     getPalettes(): Promise<(import("mongoose").Document<any, any, Palette> & Palette & {
         _id: import("mongoose").Types.ObjectId;
     })[]>;
@@ -28,15 +32,11 @@ export declare class BuilderService implements OnModuleInit {
     })[]>;
     store(event: BuildEvent): Promise<boolean>;
     storePalette(palette: any): Promise<any>;
-    handleSubscription(subscription: subscription): Promise<(import("mongoose").Document<any, any, BuildEvent> & BuildEvent & {
-        _id: import("mongoose").Types.ObjectId;
-    })[]>;
     computeAmount(productName: string): Promise<number>;
-    publish(newEvent: BuildEvent): void;
     handleProductOrdered(event: BuildEvent): Promise<number>;
     handlePickDone(params: any): Promise<void>;
     handleProductShipped(params: any): Promise<void>;
     private storeModelPalette;
-    clear(): Promise<void>;
     reset(): Promise<void>;
+    clear(): Promise<void>;
 }
