@@ -259,25 +259,21 @@ export class BuilderService implements OnModuleInit {
         JSON.stringify(params, null, 3),
     );
 
-    // TODO DO I need this the barcode is not changing is it?
-    let barCode = params.code;
+    // Update palette only if state is changed to picking.
+    const pal = await this.paletteModel
+      .findOneAndUpdate(
+        { location: params.location },
+        {
+          $inc: { amount: -1 },
+        },
+        { new: true }, // return the new palette.
+      )
+      .exec();
+    this.logger.log(`handlePickDone new pal \n${JSON.stringify(pal, null, 3)}`);
 
-    if (params.state === 'picking') {
-      // Update palette only if state is changed to picking.
-      const pal = await this.paletteModel
-        .findOneAndUpdate(
-          { location: params.location },
-          {
-            $inc: { amount: -1 },
-          },
-          { new: true }, // return the new palette.
-        )
-        .exec();
-      this.logger.log(
-        `handlePickDone new pal \n${JSON.stringify(pal, null, 3)}`,
-      );
-
-      barCode = pal.barcode;
+    // Remove palette from database if the count drops to 0.
+    if (pal.amount <= 0) {
+      await this.paletteModel.deleteMany({ barcode: pal.barcode });
     }
 
     // Update pickTask.
@@ -285,7 +281,7 @@ export class BuilderService implements OnModuleInit {
       .findOneAndUpdate(
         { code: params.code },
         {
-          palette: barCode,
+          palette: pal.barcode,
           locations: [params.location], // only have one location after picking.
           state: params.state, // Here the new state is assigned.
         },

@@ -173,19 +173,18 @@ let BuilderService = BuilderService_1 = class BuilderService {
     async handlePickDone(params) {
         console.log('[builder.service] handlePickDone called wtih: ' +
             JSON.stringify(params, null, 3));
-        let barCode = params.code;
-        if (params.state === 'picking') {
-            const pal = await this.paletteModel
-                .findOneAndUpdate({ location: params.location }, {
-                $inc: { amount: -1 },
-            }, { new: true })
-                .exec();
-            this.logger.log(`handlePickDone new pal \n${JSON.stringify(pal, null, 3)}`);
-            barCode = pal.barcode;
+        const pal = await this.paletteModel
+            .findOneAndUpdate({ location: params.location }, {
+            $inc: { amount: -1 },
+        }, { new: true })
+            .exec();
+        this.logger.log(`handlePickDone new pal \n${JSON.stringify(pal, null, 3)}`);
+        if (pal.amount <= 0) {
+            await this.paletteModel.deleteMany({ barcode: pal.barcode });
         }
         const pick = await this.pickTaskModel
             .findOneAndUpdate({ code: params.code }, {
-            palette: barCode,
+            palette: pal.barcode,
             locations: [params.location],
             state: params.state,
         }, { new: true })
