@@ -46,6 +46,5 @@ export class PickTasksComponent implements OnInit {
     else if (status === 'picking') {
       this.router.navigate(['pick-tasks/confirm-delivery', orderID])
     }
-
   }
 }

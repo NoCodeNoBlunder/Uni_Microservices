@@ -87,7 +87,7 @@ export class BuilderService implements OnModuleInit {
   // TODO do you need awaits here?
   // region Queries
   async getPalettes() {
-    const c = this.paletteModel.find().exec();
+    const c = await this.paletteModel.find().exec();
     console.log(
       '[builder.service] getPalettes Query result: ' +
         JSON.stringify(c, null, 3),
@@ -97,7 +97,7 @@ export class BuilderService implements OnModuleInit {
 
   // TODO dont I need a new here?
   async getOrdersToPick() {
-    const c = this.pickTaskModel.find({}).exec();
+    const c = await this.pickTaskModel.find({}).sort({ state: 1 }).exec();
     console.log(
       '[builder.service] getOrdersToPick Query result: ' +
         JSON.stringify(c, null, 3),
@@ -105,7 +105,7 @@ export class BuilderService implements OnModuleInit {
     return c;
   }
 
-  async orderToPick(orderID: string) {
+  async getOrderToPick(orderID: string) {
     console.log('orderToPick called with ID:' + orderID);
     const c = await this.pickTaskModel.findOne({ code: orderID }).exec();
     console.log('Result', JSON.stringify(c, null, 3));

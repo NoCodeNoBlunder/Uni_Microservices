@@ -22,13 +22,11 @@ let AppService = class AppService {
             return await this.modelBuilderService.getPalettes();
         }
         else if (key === 'OrdersToPick') {
-            const c = await this.modelBuilderService.getOrdersToPick();
-            console.log('app.service getQuery' + JSON.stringify(c, null, 3));
-            return c;
+            return await this.modelBuilderService.getOrdersToPick();
         }
         else if (key.startsWith('OrdersToPick_')) {
             const orderID = key.substring('OrdersToPick_'.length);
-            return await this.modelBuilderService.orderToPick(orderID);
+            return await this.modelBuilderService.getOrderToPick(orderID);
         }
         else {
             const list = await this.modelBuilderService.getByTag(key);

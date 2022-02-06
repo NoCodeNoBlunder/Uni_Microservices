@@ -3,7 +3,6 @@ import Subscription from './modules/builder/subscription';
 import { BuilderService } from './modules/builder/builder.service';
 import Command from './modules/builder/command';
 import { BuildEvent } from './modules/builder/build-event.schema';
-import { PickTask } from './modules/builder/pick-task.schema';
 
 @Injectable()
 export class AppService {
@@ -15,12 +14,10 @@ export class AppService {
     if (key === 'palettes') {
       return await this.modelBuilderService.getPalettes();
     } else if (key === 'OrdersToPick') {
-      const c = await this.modelBuilderService.getOrdersToPick();
-      console.log('app.service getQuery' + JSON.stringify(c, null, 3));
-      return c;
+      return await this.modelBuilderService.getOrdersToPick();
     } else if (key.startsWith('OrdersToPick_')) {
       const orderID = key.substring('OrdersToPick_'.length);
-      return await this.modelBuilderService.orderToPick(orderID);
+      return await this.modelBuilderService.getOrderToPick(orderID);
     } else {
       const list = await this.modelBuilderService.getByTag(key);
       return {

@@ -24,7 +24,7 @@ export declare class BuilderService implements OnModuleInit {
     getOrdersToPick(): Promise<(import("mongoose").Document<any, any, PickTask> & PickTask & {
         _id: import("mongoose").Types.ObjectId;
     })[]>;
-    orderToPick(orderID: string): Promise<import("mongoose").Document<any, any, PickTask> & PickTask & {
+    getOrderToPick(orderID: string): Promise<import("mongoose").Document<any, any, PickTask> & PickTask & {
         _id: import("mongoose").Types.ObjectId;
     }>;
     getByTag(tag: string): Promise<(import("mongoose").Document<any, any, BuildEvent> & BuildEvent & {

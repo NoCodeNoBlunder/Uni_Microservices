@@ -61,18 +61,18 @@ let BuilderService = BuilderService_1 = class BuilderService {
         }
     }
     async getPalettes() {
-        const c = this.paletteModel.find().exec();
+        const c = await this.paletteModel.find().exec();
         console.log('[builder.service] getPalettes Query result: ' +
             JSON.stringify(c, null, 3));
         return c;
     }
     async getOrdersToPick() {
-        const c = this.pickTaskModel.find({}).exec();
+        const c = await this.pickTaskModel.find({}).sort({ state: 1 }).exec();
         console.log('[builder.service] getOrdersToPick Query result: ' +
             JSON.stringify(c, null, 3));
         return c;
     }
-    async orderToPick(orderID) {
+    async getOrderToPick(orderID) {
         console.log('orderToPick called with ID:' + orderID);
         const c = await this.pickTaskModel.findOne({ code: orderID }).exec();
         console.log('Result', JSON.stringify(c, null, 3));
