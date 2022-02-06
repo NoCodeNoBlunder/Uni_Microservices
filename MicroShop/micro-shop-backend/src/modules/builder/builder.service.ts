@@ -35,6 +35,7 @@ export class BuilderService implements OnModuleInit {
    * If an event with the blockId allready exists it only get updated if it's time is more recent.
    */
   async storeEvent(event: BuildEvent) {
+    // TODO this method doenst make any sense why would addOffer be called for a product that does not exit.
     // Ensures there is at least a placeholder. When i.e. addOffer is called before ProductStored.
     console.log("[builder.service] storeEvent called with eventtype: " + event.eventType)
 
@@ -44,8 +45,9 @@ export class BuilderService implements OnModuleInit {
         { upsert: true, new: true }).exec();
     // console.log('[builderservice] storeEvent with placeholder event:\n' + JSON.stringify(placeholder, null, 3));
 
+    // TODO why is this a findOneAndUpdate?
     const newEvent = await this.buildEventModel.findOneAndUpdate(
-        { blockId: event.blockId, time: {$lt: event.time }}, // Only selects items where the value of field is lt specified value. Notice upsert defaults to false.
+        { blockId: event.blockId, time: {$lt: event.time }, eventType: {$ne: "productOrdered"} }, // Only selects items where the value of field is lt specified value. Notice upsert defaults to false.
         // INFO Warehosue frontend cannot deal with this id.
         {
           tags: event.tags,
@@ -53,7 +55,7 @@ export class BuilderService implements OnModuleInit {
           eventType: event.eventType,
           payload: event.payload,
         },
-        { new: true }).exec();
+        { upsert:true, new: true }).exec();
     console.log('[builderservice] storeEvent with event:\n' + JSON.stringify(placeholder, null, 3));
 
     return newEvent != null;
@@ -298,26 +300,36 @@ export class BuilderService implements OnModuleInit {
   }
   // endregion
 
-  async computeNewProductAmount(productName) {
+  async computeNewProductAmount(productName): Promise<number> {
     const lastStoredEvent = await this.buildEventModel.findOne({blockId: productName}).exec();
-    const lastEvent = lastStoredEvent.payload.amount;
-
-    const newOrdersList: any[] = await this.buildEventModel.find(
+    const amount = lastStoredEvent.payload.amount
+    const orderPlacedAmount = await this.buildEventModel.countDocuments(
         {
           eventType: 'productOrdered',
           'payload.product': productName
-        }
-    ).exec();
+        })
 
-    const newOrdersNumber = newOrdersList.length;
-    const laterShippingList: any[] = await this.buildEventModel.find(
-        {
-          eventType: 'orderPicked',
-          time: {$gt: lastStoredEvent.time},
-          'payload.product': productName
-        }
-    ).exec();
-    return lastEvent;
+    return amount - orderPlacedAmount
+
+    // TODO Alberts code.
+    // const lastEvent = lastStoredEvent.payload.amount;
+    //
+    // const newOrdersList: any[] = await this.buildEventModel.find(
+    //     {
+    //       eventType: 'productOrdered',
+    //       'payload.product': productName
+    //     }
+    // ).exec();
+    //
+    // const newOrdersNumber = newOrdersList.length;
+    // const laterShippingList: any[] = await this.buildEventModel.find(
+    //     {
+    //       eventType: 'orderPicked',
+    //       time: {$gt: lastStoredEvent.time},
+    //       'payload.product': productName
+    //     }
+    // ).exec();
+    // return lastEvent;
   }
 
   async setPrice(params: SetPriceDto) {
