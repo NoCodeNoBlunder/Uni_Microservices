@@ -12,7 +12,7 @@ import { v4 as uuidv4 } from 'uuid';
 })
 export class OrderComponent implements OnInit {
 
-  public debugOut = "Hello order";
+  public debugOut = "";
   public product = 'no product';
 
   public formGroup = new FormGroup({

@@ -6,38 +6,65 @@
 
   <div class="row d-flex justify-content-center my-2">
     <div class="col d-flex justify-content-center">
-       <p>Greetings {{customer}}</p>
+       <h6>Greetings {{customer}}</h6>
     </div>
   </div>
 
-  <div class="row my-2 d-flex justify-content-center"
-       *ngFor="let order of orders">
+  <div class="container my-2">
+    <div class="row my-2 d-flex justify-content-center"
+         *ngFor="let order of orders">
 
-    <div class="col-6 d-flex justify-content-center">
-      <label>Your order for <b>{{order.product}}</b> is in state: <b>{{order.state}}</b></label>
+      <div class="col-6 d-flex justify-content-center">
+        <label>-Your order for <b>{{order.product}}</b> is in state: <b>{{order.state}}</b></label>
+      </div>
     </div>
   </div>
 
-  <a class="row my-2 d-flex justify-content-center" [routerLink]="['/home/order', myOffer.product]"
-     *ngFor="let myOffer of offers">
+  <div class="container">
+    <h6>Available products:</h6>
+    <table id="productsTable" class="table table-bordered table-hover text-center">
+      <thead>
+        <tr class="table-dark">
+          <th>#</th>
+          <th>Product</th>
+          <th>Amount</th>
+          <th>Price</th>
+        </tr>
+      </thead>
 
-    <div class="col-4 d-flex justify-content-center">
-      <label>We offer {{myOffer.amount}} </label>
-    </div>
-    <div class="col-3 d-flex justify-content-center">
-      <label>{{myOffer.product}}</label>
-    </div>
-    <div class="col-2 d-flex">
-      <label>{{myOffer.price}}€</label>
-    </div>
-  </a>
+      <tbody>
+      <tr *ngFor="let offer of offers; let i = index;" [routerLink]="['/home/order', offer.product]">
+        <td>{{i+1}}</td>
+        <td class="text-decoration-underline text-primary">{{offer.product}}</td>
+        <td>{{offer.amount}}</td>
+        <td>{{offer.price}}€</td>
+      </tr>
+      </tbody>
+
+    </table>
+
+  </div>
+
+
+  <!--<a class="row my-2 d-flex justify-content-center" [routerLink]="['/home/order', myOffer.product]"-->
+  <!--   *ngFor="let myOffer of offers">-->
+
+  <!--  <div class="col-4 d-flex justify-content-center">-->
+  <!--    <label>We offer {{myOffer.amount}} </label>-->
+  <!--  </div>-->
+  <!--  <div class="col-3 d-flex justify-content-center">-->
+  <!--    <label>{{myOffer.product}}</label>-->
+  <!--  </div>-->
+  <!--  <div class="col-2 d-flex">-->
+  <!--    <label>{{myOffer.price}}€</label>-->
+  <!--  </div>-->
+  <!--</a>-->
 
   <div class="row my-5">
       <pre>
       {{debugString}}
       </pre>
   </div>
-
 
   <div class="row justify-content-center my-5">
     <div class="col-md-auto">

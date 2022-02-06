@@ -66,7 +66,7 @@ describe('Full Test', () =>
 
   it("Check product amount decremented", () => {
     cy.contains("Greetings alex, you have 1 active order(s)")
-    cy.contains("We offer 1")
+    cy.contains(/^1$/)
   })
 
   it('Select Pick Tasks', () => {
