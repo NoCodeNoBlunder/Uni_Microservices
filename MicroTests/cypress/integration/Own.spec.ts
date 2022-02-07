@@ -16,15 +16,9 @@ describe('Full Test', () =>
     cy.get('#locationInput').type('shelf001')
 
     cy.get('#addPalette').click()
-    cy.get('#cy001').contains(/^2$/) // INFO TYPED palette amount 2 here.
+    cy.get('#cy001').contains(/^2$/)
     cy.get('#cy001').contains('skateboard')
     cy.get('#cy001').contains('shelf001')
-
-    // cy.visit('http://localhost:4200/store-tasks/add-palette')
-    // cy.get('#barcodeInput').type('cy002')
-    // cy.get('#productInput').type('Ipad Pro')
-    // cy.get('#amountInput').type('1')
-    // cy.get('#locationInput').type('front shelf')
   })
 
   // Administritative page.
@@ -40,15 +34,9 @@ describe('Full Test', () =>
     cy.get('#price').type('88')
     cy.get('#submitOfferButton').click()
     cy.contains("Offers overview:")
-
-    // cy.visit('http://localhost:4400/home')
-    // cy.get("#go-shopping-button").click()
-    // cy.get('#edit-button').click()
-    // cy.get('#name').type('Ipad Pro')
-    // cy.get('#price').type('999.99')
-    // cy.get('#submitOfferButton').click()
   })
 
+  // Order skateboard
   it('Select and Order skateboard', () => {
     cy.wait(1000)
     cy.visit('http://localhost:4400')
@@ -100,5 +88,18 @@ describe('Full Test', () =>
     cy.contains('Your order for skateboard is in state: picking')
   })
 
+  it('Ship skateboard', () => {
+    cy.wait(2000)
+    cy.visit('http://localhost:4200/pick-tasks')
+    cy.contains('skateboard').click()
+    cy.get('#confirm-delivery-button').click()
+    cy.contains('shipped')
+  })
+
+  it('Check status update for customer to shipped', () => {
+    cy.wait(2000)
+    cy.visit('http://localhost:4400/home/alex')
+    cy.contains('shipped')
+  })
 
 })
