@@ -8,11 +8,11 @@ import {
 } from '@nestjs/common';
 import { AppService } from './app.service';
 import { BuildEvent } from './modules/builder/build-event.schema';
-import { HttpService } from '@nestjs/axios';
 
 import Subscription from './modules/builder/subscription';
-import { SetPriceDto } from '../common/SetPriceDto';
-import { PlaceOrderDto } from '../common/PlaceOrderDto';
+import { SetPriceDto } from './common/SetPriceDto';
+import { PlaceOrderDto } from './common/PlaceOrderDto';
+import { HttpService } from '@nestjs/axios';
 
 @Controller()
 export class AppController implements OnModuleInit {

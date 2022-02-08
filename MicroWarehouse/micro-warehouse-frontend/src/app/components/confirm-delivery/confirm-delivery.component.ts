@@ -1,6 +1,7 @@
 import {asNativeElements, Component, OnInit} from '@angular/core';
 import { HttpClient} from "@angular/common/http";
 import { ActivatedRoute, Router } from "@angular/router";
+import { environment } from "../../../environments/environment.prod";
 
 @Component({
   selector: 'app-confirm-delivery',
@@ -31,7 +32,7 @@ export class ConfirmDeliveryComponent implements OnInit {
       console.log("edit pick tasks WH FE id params " + JSON.stringify(params, null, 3));
 
       // TODO I might even want another query to just get the order that are in picking.
-      this.http.get<any>('http://localhost:3000/query/OrdersToPick_' + this.OrderID)
+      this.http.get<any>(environment.baseurl + 'query/OrdersToPick_' + this.OrderID)
         .subscribe(
           answer => {
             console.log("edit pick tasks WH FE location: " + JSON.stringify(answer, null, 3));
@@ -51,7 +52,7 @@ export class ConfirmDeliveryComponent implements OnInit {
       state: "shipped"
     }
 
-    this.http.post<any>('http://localhost:3000/cmd/shipped', delivery).subscribe(
+    this.http.post<any>(environment.baseurl + 'cmd/shipped', delivery).subscribe(
       () => {
         // this.toastService.success("PickTask", 'Picktasks completed successfully!')
         this.router.navigate(["pick-tasks"])

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { HttpClient } from "@angular/common/http";
 import { ActivatedRoute, Router } from "@angular/router";
+import {environment} from "../../../environments/environment.prod";
 
 
 @Component({
@@ -36,7 +37,7 @@ export class EditPickComponent implements OnInit {
       // Get GET product with the correct id.
       console.log("edit pick tasks WH FE id params " + JSON.stringify(params, null, 3));
 
-      this.http.get<any>('http://localhost:3000/query/OrdersToPick_' + this.productID)
+      this.http.get<any>(environment.baseurl + 'query/OrdersToPick_' + this.productID)
         .subscribe(
           answer => {
             console.log("edit pick tasks WH FE location: " + JSON.stringify(answer, null, 3));
@@ -72,7 +73,7 @@ export class EditPickComponent implements OnInit {
 
     console.log(JSON.stringify(pickDone, null, 3));
 
-    this.http.post<any>('http://localhost:3000/cmd/pickDone', pickDone).subscribe(
+    this.http.post<any>(environment.baseurl + 'cmd/pickDone', pickDone).subscribe(
       () => {
         // this.toastService.success("PickTask", 'Picktasks completed successfully!')
         this.router.navigate(["pick-tasks"])

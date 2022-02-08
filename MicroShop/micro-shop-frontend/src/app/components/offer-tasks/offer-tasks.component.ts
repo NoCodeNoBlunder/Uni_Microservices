@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { ProductDto } from "../../../common/ProductDto";
+import { environment } from "../../../environments/environment.prod";
 
 @Component({
   selector: 'app-offer-tasks',
@@ -38,7 +39,7 @@ export class OfferTasksComponent implements OnInit {
     this.storeTaskString = `number of offers ${this.offers.length}`
 
     // Request for all the product in db.
-    this.http.get<any>('http://localhost:3100/query/products')
+    this.http.get<any>(environment.baseurl + 'query/products')
       .subscribe(
         answer => this.handleQueryResponse(answer),
         error => this.storeTaskString = JSON.stringify(error, null, 3)

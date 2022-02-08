@@ -7,8 +7,8 @@ import {Model} from 'mongoose';
 import {MSProduct} from "./product.schema";
 import {Order} from "./order.schema";
 import {Customer} from "./customer.schema";
-import {SetPriceDto} from "../../../common/SetPriceDto";
-import {PlaceOrderDto} from "../../../common/PlaceOrderDto";
+import {SetPriceDto} from "../../common/SetPriceDto";
+import {PlaceOrderDto} from "../../common/PlaceOrderDto";
 import {HttpService} from "@nestjs/axios";
 import Subscription from "./subscription";
 

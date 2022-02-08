@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { BuildEvent } from './modules/builder/build-event.schema';
 import { BuilderService } from './modules/builder/builder.service';
-import { SetPriceDto } from '../common/SetPriceDto';
-import { PlaceOrderDto } from '../common/PlaceOrderDto';
+import { SetPriceDto } from './common/SetPriceDto';
+import { PlaceOrderDto } from './common/PlaceOrderDto';
 import Subscription from './modules/builder/subscription';
 
 @Injectable()

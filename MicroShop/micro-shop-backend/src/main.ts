@@ -9,8 +9,10 @@ async function bootstrap() {
   app.enableCors();
   app.useGlobalPipes(new ValidationPipe());
   //listen tells webserver to start working
-  await app.listen(3100);
-  console.log('[main.ts] shop backend is running on port 3100');
+
+  const port = process.env.PORT || 3100;
+  await app.listen(port);
+  console.log('[main.ts] shop backend is running on port ' + port);
 }
 //bootstrap starts application
 bootstrap();

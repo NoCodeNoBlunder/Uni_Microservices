@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from "@angular/common/http";
 import { Router } from "@angular/router";
+import {environment} from "../../../environments/environment.prod";
 // TODO need a different location for these schemas they are used by both front and backend.
 
 
@@ -21,7 +22,7 @@ export class PickTasksComponent implements OnInit {
 
   ngOnInit(): void {
     // Get request Query to get picktasks via app.controller in warehouse backnd.
-    this.http.get<any>('http://localhost:3000/query/OrdersToPick')
+    this.http.get<any>(environment.baseurl + 'query/OrdersToPick')
       .subscribe(
         answer => this.handleQueryResponse(answer),
         error => this.debugString = JSON.stringify(error, null, 3)

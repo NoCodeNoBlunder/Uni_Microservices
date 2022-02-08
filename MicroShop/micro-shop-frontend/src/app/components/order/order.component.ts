@@ -4,6 +4,7 @@ import { ActivatedRoute, Router} from "@angular/router";
 import { ToastService } from "ng-bootstrap-ext";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { v4 as uuidv4 } from 'uuid';
+import {environment} from "../../../environments/environment.prod";
 
 @Component({
   selector: 'app-order',
@@ -52,7 +53,7 @@ export class OrderComponent implements OnInit {
     }
 
 
-    this.http.post<any>("http://localhost:3100/cmd/productOrdered", newOrder).subscribe(
+    this.http.post<any>(environment.baseurl + "cmd/productOrdered", newOrder).subscribe(
       () => {
         // If it works show that it did with toast and navigate to home.
         this.toastService.success("Order", 'order submitted succesfully!');

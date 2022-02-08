@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import {environment} from "../../../environments/environment.prod";
 //import { ConsoleReporter } from 'jasmine';
 //import { StoreTasksComponent } from '../store-tasks/store-tasks.component';
 
@@ -43,7 +44,7 @@ export class AddPaletteComponent implements OnInit {
     //}
     //console.log(JSON.stringify(newCmd, null, 3))
 
-    this.http.post<any>('http://localhost:3000/cmd', newCmd).subscribe(
+    this.http.post<any>(environment.baseurl + 'cmd', newCmd).subscribe(
       () => this.router.navigate(['store-tasks'])
     );
   }

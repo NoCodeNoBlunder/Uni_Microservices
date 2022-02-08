@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { ToastService } from 'ng-bootstrap-ext';
 import { ProductDto } from "../../../common/ProductDto";
+import {environment} from "../../../environments/environment.prod";
 
 @Component({
   selector: 'app-edit-offer',
@@ -22,7 +23,7 @@ export class EditOfferComponent implements OnInit {
 
   ngOnInit(): void {
     //this.toastService.success("Welcome to Edit Offer", "hello edit offer");
-    this.http.get<any>('http://localhost:3100/query/products')
+    this.http.get<any>(environment.baseurl + 'query/products')
       .subscribe(
         answer => this.handleQueryResponse(answer),
         error => this.debugOut = JSON.stringify(error, null, 3)
@@ -72,7 +73,7 @@ export class EditOfferComponent implements OnInit {
       product: this.formGroup.get('productName')?.value,
       price: Number(this.formGroup.get('productPrice')?.value),
     }
-    this.http.post<any>('http://localhost:3100/cmd/setPrice', params).subscribe(
+    this.http.post<any>(environment.baseurl + 'cmd/setPrice', params).subscribe(
       () => {
         this.toastService.success('Edit Offer', 'Price has been stored successfully !!!');
         this.router.navigate(['offer-tasks']);
