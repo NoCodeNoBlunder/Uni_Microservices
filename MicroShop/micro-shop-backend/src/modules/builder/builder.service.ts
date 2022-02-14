@@ -27,7 +27,8 @@ export class BuilderService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    await this.reset();
+    // We no longer want to do this.
+    // await this.reset();
   }
 
   /**

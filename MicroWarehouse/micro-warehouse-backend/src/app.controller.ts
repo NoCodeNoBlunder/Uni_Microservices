@@ -22,10 +22,20 @@ import { BuildEvent } from './modules/builder/build-event.schema';
 @Controller()
 export class AppController implements OnModuleInit {
   logger = new Logger(AppController.name);
+
+  public port = process.env.PORT || 3000;
+  public warehoueUrl = 'http://localhost:3000/';
+  public shopUrl = 'http:localhost:3100/';
+
   constructor(
     private readonly appService: AppService,
     private httpService: HttpService,
-  ) {}
+  ) {
+    if (this.port != 3000) {
+      this.shopUrl = 'https://indrunas-shop-backend.herokuapp.com/';
+      this.warehoueUrl = 'https://indrunas-warehouse-backend.herokuapp.com/';
+    }
+  }
 
   onModuleInit() {
     this.subscribeAtShop(false);
@@ -34,8 +44,8 @@ export class AppController implements OnModuleInit {
   // region Publisher Subscriber
   private subscribeAtShop(isSubscribed: boolean) {
     this.httpService
-      .post('http://localhost:3100/subscribe', {
-        subscriberUrl: 'http://localhost:3000/event',
+      .post(this.shopUrl + 'subscribe', {
+        subscriberUrl: this.warehoueUrl + 'event',
         lastEventTime: '0',
         isReturnSubscription: isSubscribed,
       })

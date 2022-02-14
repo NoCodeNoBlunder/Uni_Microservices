@@ -28,7 +28,8 @@ export class BuilderService implements OnModuleInit {
    * Gets called once when we start the server for instance with npm start.
    */
   async onModuleInit() {
-    await this.clear();
+    // We no longer want to clear on start up.
+    // await this.clear();
   }
 
   // region Publisher Subscriber

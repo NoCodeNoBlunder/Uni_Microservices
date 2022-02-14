@@ -28,7 +28,6 @@ let BuilderService = BuilderService_1 = class BuilderService {
         this.logger = new common_1.Logger(BuilderService_1.name);
     }
     async onModuleInit() {
-        await this.clear();
     }
     async handleSubscription(subscription) {
         console.log('[builder.service] handleSubscription with subscriberUrl: ' +

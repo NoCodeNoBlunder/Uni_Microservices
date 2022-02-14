@@ -8,6 +8,9 @@ export declare class AppController implements OnModuleInit {
     private readonly appService;
     private httpService;
     logger: Logger;
+    port: string | number;
+    warehoueUrl: string;
+    shopUrl: string;
     constructor(appService: AppService, httpService: HttpService);
     onModuleInit(): void;
     private subscribeAtShop;

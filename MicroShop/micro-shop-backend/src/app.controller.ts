@@ -16,10 +16,19 @@ import { HttpService } from '@nestjs/axios';
 
 @Controller()
 export class AppController implements OnModuleInit {
+  public port = process.env.PORT || 3100;
+  public shopUrl = 'http:localhost:3100/';
+  public warehoueUrl = 'http://localhost:3000/';
+
   constructor(
     private httpService: HttpService,
     private readonly appService: AppService,
-  ) {}
+  ) {
+    if (this.port != 3100) {
+      this.shopUrl = 'https://indrunas-shop-backend.herokuapp.com/';
+      this.warehoueUrl = 'https://indrunas-warehouse-backend.herokuapp.com/';
+    }
+  }
 
   onModuleInit() {
     this.subscribeAtWarehouse(false);
@@ -28,8 +37,8 @@ export class AppController implements OnModuleInit {
   // region Publisher Subscriber
   private subscribeAtWarehouse(isReturnSubscriptionVal: boolean) {
     this.httpService
-      .post('http://localhost:3000/subscribe', {
-        subscriberUrl: 'http://localhost:3100/event',
+      .post(this.warehoueUrl + 'subscribe', {
+        subscriberUrl: this.shopUrl + 'event',
         lastEventTime: '0',
         isReturnSubscription: isReturnSubscriptionVal,
       })

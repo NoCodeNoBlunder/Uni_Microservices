@@ -25,14 +25,21 @@ let AppController = AppController_1 = class AppController {
         this.appService = appService;
         this.httpService = httpService;
         this.logger = new common_1.Logger(AppController_1.name);
+        this.port = process.env.PORT || 3000;
+        this.warehoueUrl = 'http://localhost:3000/';
+        this.shopUrl = 'http:localhost:3100/';
+        if (this.port != 3000) {
+            this.shopUrl = 'https://indrunas-shop-backend.herokuapp.com/';
+            this.warehoueUrl = 'https://indrunas-warehouse-backend.herokuapp.com/';
+        }
     }
     onModuleInit() {
         this.subscribeAtShop(false);
     }
     subscribeAtShop(isSubscribed) {
         this.httpService
-            .post('http://localhost:3100/subscribe', {
-            subscriberUrl: 'http://localhost:3000/event',
+            .post(this.shopUrl + 'subscribe', {
+            subscriberUrl: this.warehoueUrl + 'event',
             lastEventTime: '0',
             isReturnSubscription: isSubscribed,
         })
